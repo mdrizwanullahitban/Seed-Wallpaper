@@ -69,6 +69,92 @@ public partial class MainWindow : Window
         catch (TaskCanceledException) { return false; }
     }
 
+    // Add one native menu command to the existing WebView2 image context menu.
+    // This preserves Google's and Perchance's own context-menu commands.
+    private void EnableBrowserWallpaperMenu(Microsoft.Web.WebView2.Wpf.WebView2 browser)
+    {
+        if (browser.CoreWebView2 is null) return;
+        browser.CoreWebView2.ContextMenuRequested += (_, args) =>
+        {
+            if (!args.ContextMenuTarget.HasImageContents) return;
+            var imageUrl = args.ContextMenuTarget.SourceUri;
+            if (string.IsNullOrWhiteSpace(imageUrl)) return;
+            var item = browser.CoreWebView2.Environment.CreateContextMenuItem(
+                "Apply as desktop wallpaper", null,
+                Microsoft.Web.WebView2.Core.CoreWebView2ContextMenuItemKind.Command);
+            item.CustomItemSelected += (_, _) =>
+                Dispatcher.BeginInvoke(new Action(() => _ = ApplyBrowserImageAsync(browser, imageUrl)));
+            args.MenuItems.Insert(0, item);
+        };
+    }
+
+    private static readonly HttpClient ImageClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(45)
+    };
+
+    private async Task ApplyBrowserImageAsync(Microsoft.Web.WebView2.Wpf.WebView2 browser, string imageUrl)
+    {
+        string? temp = null;
+        try
+        {
+            byte[] bytes;
+            if (imageUrl.StartsWith("blob:", StringComparison.OrdinalIgnoreCase))
+            {
+                // Blob URLs exist only inside their originating browser document.
+                // Fetch them in that document, not through HttpClient.
+                var script = "(async () => { const r = await fetch(" +
+                    JsonSerializer.Serialize(imageUrl) +
+                    "); if (!r.ok) throw new Error('Image unavailable'); " +
+                    "const b = await r.blob(); if (b.size > 25000000) throw new Error('Image too large'); " +
+                    "return await new Promise((resolve,reject) => { const reader = new FileReader(); " +
+                    "reader.onload = () => resolve(reader.result); reader.onerror = reject; " +
+                    "reader.readAsDataURL(b); }); })()";
+                var json = await browser.CoreWebView2.ExecuteScriptAsync(script);
+                var dataUrl = JsonSerializer.Deserialize<string>(json);
+                if (string.IsNullOrEmpty(dataUrl) || !dataUrl.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("This generated image cannot be accessed. Save it first, then import it into My Garden.");
+                var comma = dataUrl.IndexOf(',');
+                if (comma < 0 || !dataUrl[..comma].Contains(";base64", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("Unsupported generated image format.");
+                bytes = Convert.FromBase64String(dataUrl[(comma + 1)..]);
+            }
+            else
+            {
+                if (!Uri.TryCreate(imageUrl, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+                    throw new InvalidOperationException("This image uses an unsupported URL. Save it first, then import it into My Garden.");
+                using var response = await ImageClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+                if (response.Content.Headers.ContentLength > 25_000_000)
+                    throw new InvalidOperationException("The image is too large.");
+                var mediaType = response.Content.Headers.ContentType?.MediaType ?? "";
+                if (!mediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("The selected URL did not return an image.");
+                bytes = await response.Content.ReadAsByteArrayAsync();
+            }
+            if (bytes.Length == 0 || bytes.Length > 25_000_000)
+                throw new InvalidOperationException("Image is empty or exceeds the 25 MB limit.");
+            // WPF validates that the bytes actually decode as an image.
+            using var stream = new MemoryStream(bytes);
+            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+            if (decoder.Frames.Count == 0) throw new InvalidOperationException("Invalid image.");
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(decoder.Frames[0]));
+            temp = Path.Combine(Path.GetTempPath(), "SeedWallpaper-" + Guid.NewGuid().ToString("N") + ".png");
+            using (var file = File.Create(temp)) encoder.Save(file);
+            var saved = _library.Import(temp);
+            ApplyWallpaperFile(saved);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Apply wallpaper", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+        finally
+        {
+            if (temp is not null) try { File.Delete(temp); } catch (IOException) { }
+        }
+    }
+
     private void ShowOfflineIfCurrent(string page)
     {
         if (_page == page) OfflinePanel.Visibility = Visibility.Visible;
@@ -231,6 +317,7 @@ public partial class MainWindow : Window
             {
                 await GoogleDiscoverBrowser.EnsureCoreWebView2Async();
 
+                EnableBrowserWallpaperMenu(GoogleDiscoverBrowser);
                 GoogleDiscoverBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
                 // Register before navigation, so Google's header is hidden before
                 // the first paint and again on every reload or result navigation.
@@ -702,6 +789,7 @@ public partial class MainWindow : Window
         {
             await PerchanceBrowser.EnsureCoreWebView2Async();
 
+            EnableBrowserWallpaperMenu(PerchanceBrowser);
             PerchanceBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
             PerchanceBrowser.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
             PerchanceBrowser.Source = new Uri("https://perchance.org/03tqzy7x1l");
