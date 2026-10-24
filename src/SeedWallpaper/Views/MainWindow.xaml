@@ -27,6 +27,14 @@
         <Setter TargetName="Chrome" Property="Background" Value="#243E4A"/>
         <Setter Property="Foreground" Value="#72F3CE"/>
        </Trigger>
+       <MultiTrigger>
+        <MultiTrigger.Conditions>
+         <Condition Property="IsMouseOver" Value="True"/>
+         <Condition Property="Tag" Value="Close"/>
+        </MultiTrigger.Conditions>
+        <Setter TargetName="Chrome" Property="Background" Value="#B83948"/>
+        <Setter Property="Foreground" Value="White"/>
+       </MultiTrigger>
        <Trigger Property="IsPressed" Value="True">
         <Setter TargetName="Chrome" Property="Background" Value="#315768"/>
         <Setter Property="Foreground" Value="White"/>
@@ -56,7 +64,7 @@
      <Button Style="{StaticResource TitleBarControlButton}" ToolTip="Maximise / Restore" Click="WindowMaximize_Click">
       <TextBlock Text="&#xE922;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
      </Button>
-     <Button Style="{StaticResource TitleBarCloseButton}" ToolTip="Close" Click="WindowClose_Click">
+     <Button Style="{StaticResource TitleBarCloseButton}" Tag="Close" ToolTip="Close" Click="WindowClose_Click">
       <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="11"/>
      </Button>
     </StackPanel>
