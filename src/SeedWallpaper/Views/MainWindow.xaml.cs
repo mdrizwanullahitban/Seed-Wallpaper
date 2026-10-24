@@ -38,6 +38,19 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => await SearchOnlineAsync("featured pictures landscape");
     }
 
+    private void WindowMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+    private void WindowMaximize_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+    private void WindowClose_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2) WindowMaximize_Click(sender, e);
+        else if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed) DragMove();
+    }
+
     private void SetPage(string title, string description, bool showLibrary, Button active)
     {
         PageTitle.Text = title;
@@ -55,6 +68,8 @@ public partial class MainWindow : Window
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
         StudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
+        GalleryWorkspace.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
+        WallpaperDetailsPanel.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         SearchBox.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         MoreButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
         GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
