@@ -41,6 +41,46 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => await SearchOnlineAsync("featured pictures landscape");
     }
 
+    private static async Task<bool> CanReachAsync(string host)
+    {
+        try
+        {
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(6) };
+            using var response = await client.GetAsync(host, HttpCompletionOption.ResponseHeadersRead);
+            return true; // Even HTTP errors prove the remote server is reachable.
+        }
+        catch (HttpRequestException) { return false; }
+        catch (TaskCanceledException) { return false; }
+    }
+
+    private void ShowOfflineIfCurrent(string page)
+    {
+        if (_page == page) OfflinePanel.Visibility = Visibility.Visible;
+    }
+
+    private async void OfflineRetry_Click(object sender, RoutedEventArgs e)
+    {
+        OfflinePanel.Visibility = Visibility.Collapsed;
+        if (_page == "Home") await SearchOnlineAsync("featured pictures landscape");
+        else if (_page == "Discover") await NavigateGoogleAsync(SearchBox.Text);
+        else if (_page == "Studio")
+        {
+            if (!await CanReachAsync("https://perchance.org/03tqzy7x1l"))
+            {
+                ShowOfflineIfCurrent("Studio");
+                return;
+            }
+            if (PerchanceBrowser.CoreWebView2 is null) Studio_Click(sender, e);
+            else PerchanceBrowser.Reload();
+        }
+    }
+
+    private void OfflineSettings_Click(object sender, RoutedEventArgs e)
+    {
+        try { Process.Start(new ProcessStartInfo("ms-settings:network-status") { UseShellExecute = true }); }
+        catch (Exception ex) { MessageBox.Show(ex.Message, "Network settings"); }
+    }
+
     private void WindowMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
     private void WindowMaximize_Click(object sender, RoutedEventArgs e) =>
@@ -56,6 +96,7 @@ public partial class MainWindow : Window
 
     private void SetPage(string title, string description, bool showLibrary, Button active)
     {
+        OfflinePanel.Visibility = Visibility.Collapsed;
         PageTitle.Text = title;
         PageDescription.Text = description;
         _showLibrary = showLibrary;
@@ -118,6 +159,13 @@ public partial class MainWindow : Window
 
     private async Task NavigateGoogleAsync(string query)
     {
+        if (!await CanReachAsync("https://www.google.com"))
+        {
+            ShowOfflineIfCurrent("Discover");
+            return;
+        }
+        if (_page != "Discover") return;
+        OfflinePanel.Visibility = Visibility.Collapsed;
         var url = "https://www.google.com/search?tbm=isch&q=" +
             Uri.EscapeDataString(string.IsNullOrWhiteSpace(query) ? "4k desktop wallpapers" : query.Trim());
         try
@@ -191,6 +239,7 @@ public partial class MainWindow : Window
         if (!e.IsSuccess)
         {
             GoogleLoadingText.Text = "Google Images could not load here. Check your connection.";
+            ShowOfflineIfCurrent("Discover");
             GoogleLoadingText.Visibility = Visibility.Visible;
             return;
         }
@@ -276,6 +325,12 @@ public partial class MainWindow : Window
 
     private async Task SearchOnlineAsync(string term)
     {
+        if (!await CanReachAsync("https://commons.wikimedia.org"))
+        {
+            ShowOfflineIfCurrent("Home");
+            return;
+        }
+        if (_page == "Home") OfflinePanel.Visibility = Visibility.Collapsed;
         var generation = ++_searchGeneration;
         EmptyHint.Text = "Searching Wikimedia Commons...";
         EmptyHint.Visibility = Visibility.Visible;
@@ -482,7 +537,12 @@ public partial class MainWindow : Window
     private async void Studio_Click(object sender, RoutedEventArgs e)
     {
         SetPage("Seed Studio", "Generate images with Perchance.", false, StudioButton);
-        if (_perchanceInitialized) return;
+        if (!await CanReachAsync("https://perchance.org/03tqzy7x1l"))
+        {
+            ShowOfflineIfCurrent("Studio");
+            return;
+        }
+        if (_perchanceInitialized) { PerchanceBrowser.Reload(); return; }
         try
         {
             await PerchanceBrowser.EnsureCoreWebView2Async();
@@ -502,6 +562,7 @@ public partial class MainWindow : Window
     private void PerchanceNavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
     {
         PerchanceLoadingText.Visibility = e.IsSuccess ? Visibility.Collapsed : Visibility.Visible;
+        if (!e.IsSuccess) ShowOfflineIfCurrent("Studio");
         if (!e.IsSuccess) PerchanceLoadingText.Text = "Perchance could not load. Check your internet connection or open it in your browser.";
     }
 
