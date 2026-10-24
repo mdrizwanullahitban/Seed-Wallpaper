@@ -14,6 +14,10 @@ public partial class MainWindow : Window
     private readonly LocalWallpaperService _library = new();
     private readonly FavoritesService _favorites = new();
     private readonly WikimediaWallpaperService _onlineService = new();
+    private readonly OpenverseWallpaperService _openverse = new();
+    private readonly List<OnlineWallpaper> _onlineResults = new();
+    private string _currentQuery = "landscape";
+    private int _onlinePage = 0;
     private OnlineWallpaper? _selectedOnline;
     private string _page = "Home";
     private int _searchGeneration;
@@ -47,6 +51,7 @@ public partial class MainWindow : Window
         FavoriteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
+        MoreButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
         GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
         ClearSelection();
         GalleryList.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
@@ -91,14 +96,24 @@ public partial class MainWindow : Window
         var generation = ++_searchGeneration;
         EmptyHint.Text = "Searching Wikimedia Commons...";
         EmptyHint.Visibility = Visibility.Visible;
+        _currentQuery = term;
+        _onlinePage = 0;
+        _onlineResults.Clear();
         OnlineList.ItemsSource = null;
         DownloadButton.IsEnabled = false;
         SourceButton.IsEnabled = false;
         try
         {
-            var images = await _onlineService.SearchAsync(term);
+            var results = await Task.WhenAll(
+                _onlineService.SearchAsync(term).ContinueWith(t => t.IsCompletedSuccessfully ? t.Result : Array.Empty<OnlineWallpaper>()),
+                _openverse.SearchAsync(term).ContinueWith(t => t.IsCompletedSuccessfully ? t.Result : Array.Empty<OnlineWallpaper>()));
+            var images = results.SelectMany(x => x).DistinctBy(x => x.DownloadUrl).ToList();
             if (generation != _searchGeneration || _page is not ("Discover" or "Home")) return;
-            OnlineList.ItemsSource = images;
+            _onlineResults.AddRange(images);
+            _onlinePage = 1;
+            OnlineList.ItemsSource = _onlineResults.ToList();
+            MoreButton.Visibility = Visibility.Visible;
+            MoreButton.IsEnabled = true;
             EmptyHint.Text = images.Count == 0 ? "No results. Try another search, such as mountains or forest." : "";
             EmptyHint.Visibility = images.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             StatusText.Text = $"Found {images.Count} online images. Select one to preview and save.";
@@ -138,13 +153,32 @@ public partial class MainWindow : Window
         try
         {
             StatusText.Text = "Downloading original image...";
-            var saved = await _onlineService.DownloadAsync(_selectedOnline);
+            var saved = new Uri(_selectedOnline.DownloadUrl).Host.EndsWith(".wikimedia.org", StringComparison.OrdinalIgnoreCase)
+                ? await _onlineService.DownloadAsync(_selectedOnline)
+                : await _openverse.DownloadAsync(_selectedOnline);
             StatusText.Text = "Saved to My Garden: " + Path.GetFileName(saved) + ". Review source licence for attribution.";
             MessageBox.Show("Image saved to My Garden. You can apply it there.\nRemember to check the source licence for attribution requirements.",
                 "Download complete", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex) { MessageBox.Show(ex.Message, "Download failed", MessageBoxButton.OK, MessageBoxImage.Error); }
         finally { DownloadButton.IsEnabled = _selectedOnline is not null; }
+    }
+
+    private async void More_Click(object sender, RoutedEventArgs e)
+    {
+        if (_onlinePage < 1) return;
+        MoreButton.IsEnabled = false;
+        try
+        {
+            var next = await _openverse.SearchAsync(_currentQuery, _onlinePage + 1);
+            var seen = _onlineResults.Select(x => x.DownloadUrl).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            _onlineResults.AddRange(next.Where(x => seen.Add(x.DownloadUrl)));
+            _onlinePage++;
+            OnlineList.ItemsSource = _onlineResults.ToList();
+            StatusText.Text = $"Showing {_onlineResults.Count} wallpapers from Wikimedia Commons and Openverse.";
+        }
+        catch (Exception ex) { StatusText.Text = "Could not load more: " + ex.Message; }
+        finally { MoreButton.IsEnabled = true; }
     }
 
     private void Source_Click(object sender, RoutedEventArgs e)
