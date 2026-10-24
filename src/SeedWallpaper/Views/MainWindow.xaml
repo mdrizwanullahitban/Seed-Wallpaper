@@ -4,10 +4,10 @@
  xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
  Title="Seed Wallpaper" WindowStyle="None" ResizeMode="CanResize" Width="1320" Height="820" MinWidth="1020" MinHeight="610"
  WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
- FontFamily="Segoe UI">
+ FontFamily="Segoe UI" PreviewKeyDown="Window_PreviewKeyDown">
  <Grid>
-  <Grid.RowDefinitions><RowDefinition Height="38"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-  <Border Grid.Row="0" Background="#101923" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+  <Grid.RowDefinitions><RowDefinition x:Name="TitleBarRow" Height="38"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <Border x:Name="WindowTitleBar" Grid.Row="0" Background="#101923" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
    <DockPanel LastChildFill="True">
     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
      <Button Content="—" Width="48" Height="36" Padding="0" Margin="0" ToolTip="Minimise" Click="WindowMinimize_Click" Background="Transparent" BorderThickness="0"/>
