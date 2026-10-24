@@ -368,6 +368,18 @@ public partial class MainWindow : Window
             Process.Start(new ProcessStartInfo(_selectedOnline.PageUrl) { UseShellExecute = true });
     }
 
+    private void GalleryList_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+    {
+        if (_page is not ("Home" or "Garden")) return;
+        // ListBox has an internal ScrollViewer which otherwise swallows wheel
+        // events even when the collection is laid out inside GalleryScroll.
+        e.Handled = true;
+        double step = System.Windows.SystemParameters.WheelScrollLines * 22.0;
+        if (step <= 0 || step > 500) step = 66;
+        GalleryScroll.ScrollToVerticalOffset(
+            Math.Max(0, GalleryScroll.VerticalOffset - e.Delta / 120.0 * step));
+    }
+
     private void Search_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
         if (e.Key == System.Windows.Input.Key.Enter && (_page is "Discover" or "Home"))
