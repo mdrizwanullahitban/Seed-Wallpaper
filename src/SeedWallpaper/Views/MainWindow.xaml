@@ -46,19 +46,84 @@
      <StackPanel x:Name="CategoryBar" Grid.Row="1" Margin="0,0,0,12">
       <TextBlock Text="EXPLORE COLLECTIONS" Foreground="#90B7C9" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,8"/>
       <WrapPanel>
-       <Button Content="✦ Featured" Tag="featured pictures landscape" Click="Category_Click" Margin="0,0,7,7"/>
-       <Button Content="Nature" Tag="nature landscape" Click="Category_Click" Margin="0,0,7,7"/>
-       <Button Content="Space" Tag="astronomy nebula" Click="Category_Click" Margin="0,0,7,7"/>
-       <Button Content="Cars" Tag="sports car" Click="Category_Click" Margin="0,0,7,7"/>
-       <Button Content="Architecture" Tag="architecture building" Click="Category_Click" Margin="0,0,7,7"/>
-       <Button Content="Abstract" Tag="abstract art" Click="Category_Click" Margin="0,0,7,7"/>
-       <Button Content="Minimal" Tag="minimalist landscape" Click="Category_Click" Margin="0,0,7,7"/>
-       <Button Content="Animals" Tag="wildlife photography" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Tag="nature landscape" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Nature wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🌿" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Nature" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="astronomy nebula" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Space wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🌌" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Space" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="sports car" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Cars wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🏎" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Cars" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="city skyline" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Cityscapes wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🏙" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Cityscapes" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="ocean underwater" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Seascapes wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🌊" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Seascapes" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="painting colorful" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Art wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🎨" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Art" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="geometric abstract" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Geometric wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🔷" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Geometric" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="wildlife photography" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Wildlife wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🐾" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Wildlife" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="architecture building" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Architecture wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🏛" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Architecture" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="planet earth" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Earth wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🌍" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Earth" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="science fiction" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Sci-Fi wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🪐" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Sci-Fi" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
+       <Button Tag="mountain landscape" Click="Category_Click" Width="136" Height="115" Margin="0,0,9,9" Padding="4" Background="#173448" BorderBrush="#2C5365" BorderThickness="1" ToolTip="Browse Landscapes wallpapers">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+         <TextBlock Text="🏔" FontSize="35" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+         <TextBlock Text="Landscapes" FontSize="13" FontWeight="SemiBold" Foreground="#E3F3FC" HorizontalAlignment="Center"/>
+        </StackPanel>
+       </Button>
       </WrapPanel>
      </StackPanel>
      <Grid Grid.Row="2" Margin="0,0,0,15">
       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
       <TextBlock x:Name="GalleryHeading" Text="Wallpapers" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center"/>
+      <Button x:Name="MoreButton" Grid.Column="1" Content="Load More" Click="More_Click" Visibility="Collapsed" Margin="0,0,10,0"/>
       <Button x:Name="RefreshButton" Grid.Column="1" Content="↻  Refresh" Click="Refresh_Click" Margin="0,0,10,0"/>
       <Button x:Name="OpenFolderButton" Grid.Column="2" Content="Open Folder" Click="OpenFolder_Click" Margin="0,0,10,0"/>
       <Button x:Name="ImportButton" Grid.Column="3" Click="Import_Click" BorderThickness="0" Background="{StaticResource AccentGradient}" Foreground="#071824" FontWeight="SemiBold" Content="+  Import Images" Margin="0"/>
