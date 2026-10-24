@@ -13,6 +13,10 @@ public partial class MainWindow : Window
 {
     private readonly LocalWallpaperService _library = new();
     private readonly FavoritesService _favorites = new();
+    private readonly WikimediaWallpaperService _onlineService = new();
+    private OnlineWallpaper? _selectedOnline;
+    private string _page = "Home";
+    private int _searchGeneration;
     private readonly Brush _activeBrush = (Brush)new BrushConverter().ConvertFromString("#1C6D75")!;
     private readonly Brush _inactiveBrush = Brushes.Transparent;
     private string? _selectedPath;
@@ -22,7 +26,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        ShowGarden();
+        ShowHome();
         ClearSelection();
     }
 
@@ -31,13 +35,112 @@ public partial class MainWindow : Window
         PageTitle.Text = title;
         PageDescription.Text = description;
         _showLibrary = showLibrary;
+        _page = active == DiscoverButton ? "Discover" : active == GardenButton ? "Garden" : active == HomeButton ? "Home" : active == StudioButton ? "Studio" : "Settings";
+        OnlineList.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
+        BrowseButton.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
+        DownloadButton.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
+        SourceButton.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
+        CreditText.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
+        ApplyButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
+        FavoriteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
+        DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
+        GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Welcome" : "Wallpapers";
+        ClearSelection();
         GalleryList.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         EmptyHint.Visibility = showLibrary && _images.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ImportButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         RefreshButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
-        SearchBox.IsEnabled = showLibrary;
+        SearchBox.IsEnabled = showLibrary || _page == "Discover";
+        SearchBox.ToolTip = _page == "Discover" ? "Type a subject and press Enter to search Wikimedia Commons" : "Filter My Garden by filename";
         foreach (var button in new[] { HomeButton, DiscoverButton, StudioButton, GardenButton, SettingsButton })
             button.Background = button == active ? _activeBrush : _inactiveBrush;
+    }
+
+    private void ShowHome()
+    {
+        SetPage("Welcome to Seed", "Discover inspiring wallpapers online, or manage the images in My Garden.", false, HomeButton);
+        EmptyHint.Text = "Explore wallpapers from Wikimedia Commons.\nChoose Browse Online Wallpapers to begin.";
+        EmptyHint.Visibility = Visibility.Visible;
+        StatusText.Text = "Welcome to Seed Wallpaper.";
+    }
+
+    private async void Browse_Click(object sender, RoutedEventArgs e) => await ShowDiscoverAsync();
+
+    private async Task ShowDiscoverAsync()
+    {
+        SetPage("Discover", "Search freely licensed images from Wikimedia Commons. Review each image's licence and attribution.", false, DiscoverButton);
+        EmptyHint.Text = "Searching online wallpapers...";
+        EmptyHint.Visibility = Visibility.Visible;
+        if (string.IsNullOrWhiteSpace(SearchBox.Text)) SearchBox.Text = "nature landscape";
+        await SearchOnlineAsync(SearchBox.Text);
+    }
+
+    private async Task SearchOnlineAsync(string term)
+    {
+        var generation = ++_searchGeneration;
+        EmptyHint.Text = "Searching Wikimedia Commons...";
+        EmptyHint.Visibility = Visibility.Visible;
+        OnlineList.ItemsSource = null;
+        DownloadButton.IsEnabled = false;
+        SourceButton.IsEnabled = false;
+        try
+        {
+            var images = await _onlineService.SearchAsync(term);
+            if (generation != _searchGeneration || _page != "Discover") return;
+            OnlineList.ItemsSource = images;
+            EmptyHint.Text = images.Count == 0 ? "No results. Try another search, such as mountains or forest." : "";
+            EmptyHint.Visibility = images.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            StatusText.Text = $"Found {images.Count} online images. Select one to preview and save.";
+        }
+        catch (Exception ex)
+        {
+            if (generation != _searchGeneration) return;
+            EmptyHint.Text = "Unable to load online wallpapers. Check your connection and try again.";
+            EmptyHint.Visibility = Visibility.Visible;
+            StatusText.Text = "Online search failed: " + ex.Message;
+        }
+    }
+
+    private void Online_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        _selectedOnline = OnlineList.SelectedItem as OnlineWallpaper;
+        if (_selectedOnline is null) return;
+        PreviewImage.Source = new BitmapImage(new Uri(_selectedOnline.PreviewUrl));
+        SelectedText.Text = _selectedOnline.Title;
+        CreditText.Text = $"Licence: {_selectedOnline.License}\nCreator: {_selectedOnline.Artist}";
+        DownloadButton.IsEnabled = true;
+        SourceButton.IsEnabled = true;
+    }
+
+    private async void Download_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedOnline is null) return;
+        DownloadButton.IsEnabled = false;
+        try
+        {
+            StatusText.Text = "Downloading original image...";
+            var saved = await _onlineService.DownloadAsync(_selectedOnline);
+            StatusText.Text = "Saved to My Garden: " + Path.GetFileName(saved) + ". Review source licence for attribution.";
+            MessageBox.Show("Image saved to My Garden. You can apply it there.\nRemember to check the source licence for attribution requirements.",
+                "Download complete", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex) { MessageBox.Show(ex.Message, "Download failed", MessageBoxButton.OK, MessageBoxImage.Error); }
+        finally { DownloadButton.IsEnabled = _selectedOnline is not null; }
+    }
+
+    private void Source_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedOnline is not null)
+            Process.Start(new ProcessStartInfo(_selectedOnline.PageUrl) { UseShellExecute = true });
+    }
+
+    private void Search_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Enter && _page == "Discover")
+        {
+            e.Handled = true;
+            _ = SearchOnlineAsync(SearchBox.Text);
+        }
     }
 
     private void ShowGarden()
@@ -118,31 +221,16 @@ public partial class MainWindow : Window
 
     private void Search_Changed(object sender, TextChangedEventArgs e)
     {
-        if (GalleryList is not null) FilterGallery();
+        if (GalleryList is not null && _page == "Garden") FilterGallery();
     }
 
-    private void Home_Click(object sender, RoutedEventArgs e) =>
-        SetPage("Welcome to Seed", "Your calm space for beautiful desktop wallpapers. Visit My Garden to get started.", false, HomeButton);
-    private void Discover_Click(object sender, RoutedEventArgs e) =>
-        SetPage("Discover", "Online wallpaper discovery is planned for the next milestone.", false, DiscoverButton);
+    private void Home_Click(object sender, RoutedEventArgs e) => ShowHome();
+    private async void Discover_Click(object sender, RoutedEventArgs e) => await ShowDiscoverAsync();
     private void Studio_Click(object sender, RoutedEventArgs e) =>
         SetPage("Seed Studio", "AI generation and reference-image editing are planned for a future milestone.", false, StudioButton);
     private void Garden_Click(object sender, RoutedEventArgs e) => ShowGarden();
     private void Settings_Click(object sender, RoutedEventArgs e) =>
         SetPage("Settings", "More personalisation options are coming soon.", false, SettingsButton);
-
-    private void Minimize_Click(object sender, RoutedEventArgs e) =>
-        WindowState = WindowState.Minimized;
-
-    private void Maximize_Click(object sender, RoutedEventArgs e)
-    {
-        WindowState = WindowState == WindowState.Maximized
-            ? WindowState.Normal
-            : WindowState.Maximized;
-        MaximizeButton.Content = WindowState == WindowState.Maximized ? "❐" : "□";
-    }
-
-    private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
     private void Refresh_Click(object sender, RoutedEventArgs e) => ShowGarden();
 
