@@ -46,7 +46,7 @@
     <TextBlock Grid.Column="1" Text="SEED  /  WALLPAPER" VerticalAlignment="Center" Margin="18,0,0,0" Foreground="#86A8BB" FontSize="12"/>
    </Grid>
    <Grid Grid.Row="1">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="300"/></Grid.ColumnDefinitions>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition x:Name="DetailsColumn" Width="300"/></Grid.ColumnDefinitions>
     <ScrollViewer x:Name="GalleryScroll" Margin="0,0,20,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly" CanContentScroll="False">
     <Grid x:Name="GalleryWorkspace">
      <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
