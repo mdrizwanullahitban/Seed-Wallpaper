@@ -181,6 +181,7 @@ public partial class MainWindow : Window
         StudioPanel.Visibility = Visibility.Collapsed;
         PerchanceStudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
         GoogleDiscoverPanel.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
+        ShortcutSettingsPanel.Visibility = _page == "Settings" ? Visibility.Visible : Visibility.Collapsed;
         TopSearchBar.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         GalleryScroll.Visibility = _page is "Studio" or "Discover" ? Visibility.Collapsed : Visibility.Visible;
         WallpaperDetailsPanel.Visibility = _page == "Garden" ? Visibility.Visible : Visibility.Collapsed;
@@ -754,7 +755,7 @@ public partial class MainWindow : Window
     private void StudioOpenGarden_Click(object sender, RoutedEventArgs e) => ShowGarden();
     private void Garden_Click(object sender, RoutedEventArgs e) => ShowGarden();
     private void Settings_Click(object sender, RoutedEventArgs e) =>
-        SetPage("Settings", "More personalisation options are coming soon.", false, SettingsButton);
+        SetPage("Settings", "Keyboard shortcuts and application preferences.", false, SettingsButton);
 
     private void Refresh_Click(object sender, RoutedEventArgs e) => ShowGarden();
 
