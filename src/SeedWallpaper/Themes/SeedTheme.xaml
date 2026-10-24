@@ -1,1 +1,43 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"><SolidColorBrush x:Key="BackgroundBrush" Color="#101A15"/><SolidColorBrush x:Key="PanelBrush" Color="#1C2D23"/><SolidColorBrush x:Key="AccentBrush" Color="#A0D9A6"/><SolidColorBrush x:Key="TextBrush" Color="#EDF5ED"/><Style TargetType="Button"><Setter Property="Background" Value="#294D35"/><Setter Property="Foreground" Value="#EDF5ED"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="16,11"/><Setter Property="Margin" Value="0,0,0,9"/><Setter Property="Cursor" Value="Hand"/></Style></ResourceDictionary>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <SolidColorBrush x:Key="BackgroundBrush" Color="#071721"/>
+ <SolidColorBrush x:Key="PanelBrush" Color="#102435"/>
+ <SolidColorBrush x:Key="AccentBrush" Color="#45E0B2"/>
+ <SolidColorBrush x:Key="TextBrush" Color="#EFF6FF"/>
+ <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,0">
+  <GradientStop Color="#38E6A2" Offset="0"/><GradientStop Color="#259ED9" Offset=".52"/><GradientStop Color="#8A42EE" Offset="1"/>
+ </LinearGradientBrush>
+ <Style TargetType="Button">
+  <Setter Property="Background" Value="#193247"/><Setter Property="Foreground" Value="#EAF4FF"/>
+  <Setter Property="BorderBrush" Value="#29465B"/><Setter Property="BorderThickness" Value="1"/>
+  <Setter Property="Padding" Value="15,10"/><Setter Property="Margin" Value="0,0,0,9"/>
+  <Setter Property="Cursor" Value="Hand"/><Setter Property="FontSize" Value="13"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+   <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+   </Border>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ButtonBorder" Property="Opacity" Value=".83"/></Trigger>
+    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="ButtonBorder" Property="Opacity" Value=".45"/></Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+  <Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="Padding" Value="16,14"/>
+  <Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/>
+  <Setter Property="FontSize" Value="15"/><Setter Property="Margin" Value="0,0,0,7"/>
+ </Style>
+ <Style TargetType="ListBoxItem">
+  <Setter Property="Margin" Value="0,0,10,12"/><Setter Property="Padding" Value="4"/>
+  <Setter Property="Background" Value="#142C3C"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+   <Border x:Name="Card" Background="{TemplateBinding Background}" CornerRadius="12" BorderThickness="2" BorderBrush="Transparent" Padding="5">
+    <ContentPresenter/>
+   </Border>
+   <ControlTemplate.Triggers>
+    <Trigger Property="IsSelected" Value="True"><Setter TargetName="Card" Property="BorderBrush" Value="#43E0B4"/></Trigger>
+    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Card" Property="BorderBrush" Value="#39769D"/></Trigger>
+   </ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+</ResourceDictionary>
