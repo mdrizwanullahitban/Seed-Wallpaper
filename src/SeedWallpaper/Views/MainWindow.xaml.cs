@@ -28,6 +28,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         ShowHome();
         ClearSelection();
+        Loaded += async (_, _) => await SearchOnlineAsync("nature landscape");
     }
 
     private void SetPage(string title, string description, bool showLibrary, Button active)
@@ -36,32 +37,32 @@ public partial class MainWindow : Window
         PageDescription.Text = description;
         _showLibrary = showLibrary;
         _page = active == DiscoverButton ? "Discover" : active == GardenButton ? "Garden" : active == HomeButton ? "Home" : active == StudioButton ? "Studio" : "Settings";
-        OnlineList.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
-        if (_page != "Discover") _selectedOnline = null;
+        OnlineList.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
+        if (_page is not ("Discover" or "Home")) _selectedOnline = null;
         BrowseButton.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
-        DownloadButton.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
-        SourceButton.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
-        CreditText.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
+        DownloadButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
+        SourceButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
+        CreditText.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
         ApplyButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         FavoriteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
-        GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Welcome" : "Wallpapers";
+        GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
         ClearSelection();
         GalleryList.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         EmptyHint.Visibility = showLibrary && _images.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ImportButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         RefreshButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         OpenFolderButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
-        SearchBox.IsEnabled = showLibrary || _page == "Discover";
-        SearchBox.ToolTip = _page == "Discover" ? "Type a subject and press Enter to search Wikimedia Commons" : "Filter My Garden by filename";
+        SearchBox.IsEnabled = showLibrary || _page is "Discover" or "Home";
+        SearchBox.ToolTip = _page is "Discover" or "Home" ? "Search wallpapers online and press Enter" : "Filter My Garden by filename";
         foreach (var button in new[] { HomeButton, DiscoverButton, StudioButton, GardenButton, SettingsButton })
             button.Background = button == active ? _activeBrush : _inactiveBrush;
     }
 
     private void ShowHome()
     {
-        SetPage("Welcome to Seed", "Discover inspiring wallpapers online, or manage the images in My Garden.", false, HomeButton);
-        EmptyHint.Text = "Explore wallpapers from Wikimedia Commons.\nChoose Browse Online Wallpapers to begin.";
+        SetPage("Welcome to Seed", "Featured wallpapers from Wikimedia Commons. Select an image to preview, or search for something new.", false, HomeButton);
+        EmptyHint.Text = "Loading featured wallpapers...";
         EmptyHint.Visibility = Visibility.Visible;
         StatusText.Text = "Welcome to Seed Wallpaper.";
     }
@@ -88,7 +89,7 @@ public partial class MainWindow : Window
         try
         {
             var images = await _onlineService.SearchAsync(term);
-            if (generation != _searchGeneration || _page != "Discover") return;
+            if (generation != _searchGeneration || _page is not ("Discover" or "Home")) return;
             OnlineList.ItemsSource = images;
             EmptyHint.Text = images.Count == 0 ? "No results. Try another search, such as mountains or forest." : "";
             EmptyHint.Visibility = images.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -146,7 +147,7 @@ public partial class MainWindow : Window
 
     private void Search_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
-        if (e.Key == System.Windows.Input.Key.Enter && _page == "Discover")
+        if (e.Key == System.Windows.Input.Key.Enter && _page is "Discover" or "Home")
         {
             e.Handled = true;
             _ = SearchOnlineAsync(SearchBox.Text);
@@ -234,7 +235,11 @@ public partial class MainWindow : Window
         if (GalleryList is not null && _page == "Garden") FilterGallery();
     }
 
-    private void Home_Click(object sender, RoutedEventArgs e) => ShowHome();
+    private async void Home_Click(object sender, RoutedEventArgs e)
+    {
+        ShowHome();
+        await SearchOnlineAsync(string.IsNullOrWhiteSpace(SearchBox.Text) ? "nature landscape" : SearchBox.Text);
+    }
     private async void Discover_Click(object sender, RoutedEventArgs e) => await ShowDiscoverAsync();
     private void Studio_Click(object sender, RoutedEventArgs e) =>
         SetPage("Seed Studio", "AI generation and reference-image editing are planned for a future milestone.", false, StudioButton);
