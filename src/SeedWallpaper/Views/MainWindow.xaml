@@ -319,6 +319,29 @@
      </StackPanel>
     </Border>
    </Grid>
+   <Border x:Name="OfflinePanel" Grid.Row="1" Panel.ZIndex="50" Background="#091C28" CornerRadius="16" Visibility="Collapsed">
+    <StackPanel Width="440" HorizontalAlignment="Center" VerticalAlignment="Center">
+     <Border Width="108" Height="108" CornerRadius="54" Background="#153440" HorizontalAlignment="Center" Margin="0,0,0,24">
+      <TextBlock Text="⌁" FontSize="70" Foreground="#62DCC2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+     </Border>
+     <TextBlock Text="You're offline" FontSize="30" FontWeight="Bold" Foreground="#F0F7FA" HorizontalAlignment="Center"/>
+     <TextBlock Text="Seed Wallpaper couldn't reach the internet. Check your Wi-Fi or Ethernet connection and try again." Foreground="#A5BDCB" TextAlignment="Center" TextWrapping="Wrap" Margin="0,12,0,24" FontSize="14"/>
+     <Border Background="#112F3B" CornerRadius="12" Padding="16" Margin="0,0,0,20">
+      <StackPanel Orientation="Horizontal">
+       <TextBlock Text="▣" FontSize="26" Foreground="#6DB3B5" Margin="0,0,14,0"/>
+       <StackPanel>
+        <TextBlock Text="Connection unavailable" FontWeight="SemiBold" Foreground="#DDECF1"/>
+        <TextBlock Text="Online content needs internet access." Foreground="#A5BDCB" FontSize="12" Margin="0,5,0,0"/>
+       </StackPanel>
+      </StackPanel>
+     </Border>
+     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+      <Button Content="↻  Retry Connection" Click="OfflineRetry_Click" Background="#35CDA6" Foreground="#071B25" FontWeight="SemiBold" Padding="20,13" Margin="0,0,12,0"/>
+      <Button Content="⚙  Check Connection" Click="OfflineSettings_Click" Padding="20,13" Margin="0"/>
+     </StackPanel>
+     <TextBlock Text="My Garden and Settings work offline." Foreground="#789EAD" FontSize="12" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+    </StackPanel>
+   </Border>
    <TextBlock x:Name="StatusText" Visibility="Collapsed" Grid.Row="2" Text="Seed Wallpaper  •  Local collection" Foreground="#87A9BA" Margin="0,15,0,0" FontSize="12"/>
   </Grid>
  </Grid>
