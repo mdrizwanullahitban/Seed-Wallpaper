@@ -27,6 +27,7 @@ public partial class MainWindow : Window
     private bool _isFullscreen;
     private WindowState _beforeFullscreenState = WindowState.Normal;
     private ResizeMode _beforeFullscreenResize = ResizeMode.CanResize;
+    private WindowStyle _beforeFullscreenStyle = WindowStyle.SingleBorderWindow;
     private int _googleNavigationVersion;
     private OnlineWallpaper? _selectedOnline;
     private string _page = "Home";
@@ -98,19 +99,20 @@ public partial class MainWindow : Window
         {
             _beforeFullscreenState = WindowState;
             _beforeFullscreenResize = ResizeMode;
+            _beforeFullscreenStyle = WindowStyle;
             _isFullscreen = true;
-            WindowTitleBar.Visibility = Visibility.Collapsed;
-            TitleBarRow.Height = new GridLength(0);
+            WindowState = WindowState.Normal;
+            WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
             WindowState = WindowState.Maximized;
         }
         else
         {
             _isFullscreen = false;
-            WindowState = _beforeFullscreenState;
+            WindowState = WindowState.Normal;
+            WindowStyle = _beforeFullscreenStyle;
             ResizeMode = _beforeFullscreenResize;
-            TitleBarRow.Height = new GridLength(38);
-            WindowTitleBar.Visibility = Visibility.Visible;
+            WindowState = _beforeFullscreenState;
         }
     }
 
