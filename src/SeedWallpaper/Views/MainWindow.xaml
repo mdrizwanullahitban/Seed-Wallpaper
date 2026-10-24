@@ -1,6 +1,7 @@
 <Window x:Class="SeedWallpaper.Views.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
  Title="Seed Wallpaper" WindowStyle="None" ResizeMode="CanResize" Width="1320" Height="820" MinWidth="1020" MinHeight="610"
  WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
  FontFamily="Segoe UI">
@@ -37,7 +38,7 @@
   </Border>
   <Grid Grid.Column="1" Margin="26,24,26,20">
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-   <Grid Margin="0,0,0,24">
+   <Grid x:Name="TopSearchBar" Margin="0,0,0,24">
     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
     <Border Background="#173247" BorderBrush="#25475B" BorderThickness="1" CornerRadius="12" Height="46" MaxWidth="700" HorizontalAlignment="Stretch">
      <DockPanel Margin="15,0"><TextBlock DockPanel.Dock="Left" Text="⌕" FontSize="25" Foreground="#91B8CB" VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -172,6 +173,26 @@
       </Grid>
      </Border>
     </Grid>
+    <Border x:Name="PerchanceStudioPanel" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#0C0E15" CornerRadius="14" BorderBrush="#303748" BorderThickness="1">
+     <DockPanel>
+      <Border DockPanel.Dock="Top" Background="#171B26" Padding="12" CornerRadius="12,12,0,0">
+       <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+         <Button Content="Reload" Click="PerchanceReload_Click" Margin="0,0,8,0" Padding="14,7"/>
+         <Button Content="Open in browser" Click="PerchanceOpen_Click" Padding="14,7"/>
+        </StackPanel>
+        <StackPanel>
+         <TextBlock Text="✦  Seed Studio · Perchance" FontSize="17" FontWeight="SemiBold" Foreground="#E9F4FA"/>
+         <TextBlock Text="Free image generation powered by the Perchance website. Download images to your PC, then import them into My Garden." FontSize="11" Foreground="#A8B8C8" TextWrapping="Wrap"/>
+        </StackPanel>
+       </DockPanel>
+      </Border>
+      <Grid Background="#0C0E15">
+       <TextBlock x:Name="PerchanceLoadingText" Text="Loading Perchance image generator…" Foreground="#A9BECD" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       <wv2:WebView2 x:Name="PerchanceBrowser" NavigationCompleted="PerchanceNavigationCompleted"/>
+      </Grid>
+     </DockPanel>
+    </Border>
     <Grid x:Name="StudioPanel" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#0C0E15">
      <Grid.ColumnDefinitions><ColumnDefinition Width="420" MinWidth="320"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*" MinWidth="300"/></Grid.ColumnDefinitions>
      <Border Grid.Column="0" Background="#171B26" BorderBrush="#303748" BorderThickness="1" CornerRadius="16" Padding="18">
