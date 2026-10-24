@@ -21,6 +21,7 @@ public partial class MainWindow : Window
     private int _onlinePage = 0;
     private string? _studioGeneratedPath;
     private string? _studioReferencePath;
+    private bool _perchanceInitialized;
     private OnlineWallpaper? _selectedOnline;
     private string _page = "Home";
     private int _searchGeneration;
@@ -67,7 +68,9 @@ public partial class MainWindow : Window
         FavoriteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
-        StudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
+        StudioPanel.Visibility = Visibility.Collapsed;
+        PerchanceStudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
+        TopSearchBar.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         GalleryWorkspace.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         WallpaperDetailsPanel.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         SearchBox.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
@@ -303,8 +306,40 @@ public partial class MainWindow : Window
         await SearchOnlineAsync("featured pictures landscape");
     }
     private async void Discover_Click(object sender, RoutedEventArgs e) => await ShowDiscoverAsync();
-    private void Studio_Click(object sender, RoutedEventArgs e) =>
-        SetPage("Seed Studio", "Create original wallpapers from a text description.", false, StudioButton);
+    private async void Studio_Click(object sender, RoutedEventArgs e)
+    {
+        SetPage("Seed Studio", "Generate images with Perchance.", false, StudioButton);
+        if (_perchanceInitialized) return;
+        try
+        {
+            await PerchanceBrowser.EnsureCoreWebView2Async();
+            PerchanceBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
+            PerchanceBrowser.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
+            PerchanceBrowser.Source = new Uri("https://perchance.org/ai-text-to-image-generator");
+            _perchanceInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            PerchanceLoadingText.Text = "Could not start the embedded browser: " + ex.Message +
+                ". Install Microsoft Edge WebView2 Runtime, or use Open in browser.";
+            PerchanceLoadingText.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void PerchanceNavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+    {
+        PerchanceLoadingText.Visibility = e.IsSuccess ? Visibility.Collapsed : Visibility.Visible;
+        if (!e.IsSuccess) PerchanceLoadingText.Text = "Perchance could not load. Check your internet connection or open it in your browser.";
+    }
+
+    private void PerchanceReload_Click(object sender, RoutedEventArgs e)
+    {
+        if (PerchanceBrowser.CoreWebView2 is not null) PerchanceBrowser.Reload();
+        else Studio_Click(sender, e);
+    }
+
+    private void PerchanceOpen_Click(object sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://perchance.org/ai-text-to-image-generator") { UseShellExecute = true });
 
     private void StudioModel_Changed(object sender, SelectionChangedEventArgs e)
     {
