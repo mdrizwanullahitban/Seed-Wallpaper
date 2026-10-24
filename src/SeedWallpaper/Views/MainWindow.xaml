@@ -179,7 +179,7 @@
      <DockPanel>
       <Grid Background="#0C0E15">
        <TextBlock x:Name="GoogleLoadingText" Text="Loading Google Images…" Foreground="#A9BECD" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-       <wv2:WebView2 x:Name="GoogleDiscoverBrowser" NavigationCompleted="GoogleNavigationCompleted"/>
+       <wv2:WebView2 x:Name="GoogleDiscoverBrowser" Visibility="Hidden" NavigationStarting="GoogleNavigationStarting" NavigationCompleted="GoogleNavigationCompleted"/>
       </Grid>
      </DockPanel>
     </Border>
