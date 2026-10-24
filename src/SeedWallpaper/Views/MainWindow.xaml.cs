@@ -45,13 +45,20 @@ public partial class MainWindow : Window
         Loaded += async (_, _) => await SearchOnlineAsync("featured pictures landscape");
     }
 
+    // Reuse sockets instead of creating a new HttpClient on every page switch.
+    private static readonly HttpClient ConnectivityClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(5)
+    };
+
     private static async Task<bool> CanReachAsync(string host)
     {
         try
         {
-            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(6) };
-            using var response = await client.GetAsync(host, HttpCompletionOption.ResponseHeadersRead);
-            return true; // Even HTTP errors prove the remote server is reachable.
+            using var request = new HttpRequestMessage(HttpMethod.Head, host);
+            using var response = await ConnectivityClient.SendAsync(
+                request, HttpCompletionOption.ResponseHeadersRead);
+            return true; // Any HTTP response confirms that the host is reachable.
         }
         catch (HttpRequestException) { return false; }
         catch (TaskCanceledException) { return false; }
