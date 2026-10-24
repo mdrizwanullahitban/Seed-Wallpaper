@@ -7,19 +7,19 @@
  FontFamily="Segoe UI" PreviewKeyDown="Window_PreviewKeyDown" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
  <Window.Resources>
   <Style x:Key="TitleBarControlButton" TargetType="{x:Type Button}">
-   <Setter Property="Width" Value="42"/>
-   <Setter Property="Height" Value="30"/>
-   <Setter Property="Margin" Value="2,3,2,3"/>
+   <Setter Property="Width" Value="46"/>
+   <Setter Property="Height" Value="32"/>
+   <Setter Property="Margin" Value="0"/>
    <Setter Property="Padding" Value="0"/>
    <Setter Property="Background" Value="Transparent"/>
-   <Setter Property="Foreground" Value="#AFC0CA"/>
+   <Setter Property="Foreground" Value="#E0E7EB"/>
    <Setter Property="BorderThickness" Value="0"/>
    <Setter Property="Cursor" Value="Hand"/>
    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
    <Setter Property="Template">
     <Setter.Value>
      <ControlTemplate TargetType="{x:Type Button}">
-      <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="5">
+      <Border x:Name="Chrome" Background="{TemplateBinding Background}">
        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Border>
       <ControlTemplate.Triggers>
@@ -56,20 +56,20 @@
  <Grid>
   <Grid.RowDefinitions><RowDefinition x:Name="TitleBarRow" Height="38"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <Border x:Name="WindowTitleBar" Grid.Row="0" Background="#101923" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-   <DockPanel LastChildFill="True">
-    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+   <Grid>
+    <TextBlock Text="✦  Seed Wallpaper" Foreground="#BBD7E2" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,0,0,0" FontSize="12"/>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
      <Button Style="{StaticResource TitleBarControlButton}" ToolTip="Minimise" Click="WindowMinimize_Click">
-      <TextBlock Text="&#xE921;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+      <Path Data="M 0,0 L 10,0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" Width="10" Height="1" Stretch="None"/>
      </Button>
      <Button Style="{StaticResource TitleBarControlButton}" ToolTip="Maximise / Restore" Click="WindowMaximize_Click">
-      <TextBlock Text="&#xE922;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+      <Path Data="M 0.5,0.5 L 10.5,0.5 10.5,10.5 0.5,10.5 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1" Fill="Transparent" Width="11" Height="11" Stretch="None"/>
      </Button>
      <Button Style="{StaticResource TitleBarCloseButton}" Tag="Close" ToolTip="Close" Click="WindowClose_Click">
-      <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="11"/>
+      <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.2" Width="11" Height="11" Stretch="None"/>
      </Button>
     </StackPanel>
-    <TextBlock Text="✦  Seed Wallpaper" Foreground="#BBD7E2" VerticalAlignment="Center" Margin="15,0,0,0" FontSize="12"/>
-   </DockPanel>
+   </Grid>
   </Border>
   <Grid Grid.Row="1">
   <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
