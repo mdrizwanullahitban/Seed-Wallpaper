@@ -123,6 +123,42 @@ public partial class MainWindow : Window
             {
                 await GoogleDiscoverBrowser.EnsureCoreWebView2Async();
                 GoogleDiscoverBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
+                // Register before navigation, so Google's header is hidden before
+                // the first paint and again on every reload or result navigation.
+                await GoogleDiscoverBrowser.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync("""
+                    (() => {
+                      const css = `
+                        #searchform, #gb, #top_nav, #hdtb, #appbar,
+                        header[role="banner"], [role="search"],
+                        [role="navigation"][aria-label="Search"],
+                        [role="navigation"][aria-label="Search options"],
+                        a[href*="udm=50"], a[href*="aep=11"] {
+                          display: none !important;
+                        }
+                        html, body { padding-top: 0 !important; }
+                      `;
+                      const apply = () => {
+                        if (!document.documentElement) return;
+                        let style = document.getElementById('seed-discover-cleanup');
+                        if (!style) {
+                          style = document.createElement('style');
+                          style.id = 'seed-discover-cleanup';
+                          (document.head || document.documentElement).appendChild(style);
+                        }
+                        if (style.textContent !== css) style.textContent = css;
+                        if (!document.body) return;
+                        for (const node of document.querySelectorAll('a, [role="tab"]')) {
+                          if ((node.textContent || '').trim().toLowerCase() === 'ai mode') {
+                            const item = node.closest('li') || node;
+                            if (item.style.display !== 'none') item.style.display = 'none';
+                          }
+                        }
+                      };
+                      apply();
+                      if (document.documentElement)
+                        new MutationObserver(apply).observe(document.documentElement, {childList:true, subtree:true});
+                    })();
+                    """);
                 _googleInitialized = true;
             }
             GoogleLoadingText.Visibility = Visibility.Visible;
@@ -146,24 +182,29 @@ public partial class MainWindow : Window
             return;
         }
 
-        // The app provides its own search field. Keep Google's image grid and
-        // refinement chips, but remove the duplicated Google search/navigation header.
-        // Google can change its page markup, so these selectors are best-effort.
-        const string discoverStyle = """
+        const string cleanupScript = """
             (() => {
-              if (document.getElementById('seed-discover-cleanup')) return;
-              const style = document.createElement('style');
-              style.id = 'seed-discover-cleanup';
-              style.textContent = `
-                #searchform, #gb, #top_nav, #hdtb, header[role="banner"],
-                [role="search"], [role="navigation"][aria-label="Search"],
-                [role="navigation"][aria-label="Search options"] {
+              const css = `
+                #searchform, #gb, #top_nav, #hdtb, #appbar,
+                header[role="banner"], [role="search"],
+                [role="navigation"][aria-label="Search"],
+                [role="navigation"][aria-label="Search options"],
+                div[role="navigation"]:has(a[href*="udm=50"]),
+                a[href*="udm=50"], a[href*="aep=11"] {
                   display: none !important;
                 }
-                body { padding-top: 0 !important; }
+                html, body { padding-top: 0 !important; }
               `;
-              document.head.appendChild(style);
-              const hideAiMode = () => {
+              const apply = () => {
+                if (!document.documentElement) return;
+                let style = document.getElementById('seed-discover-cleanup');
+                if (!style) {
+                  style = document.createElement('style');
+                  style.id = 'seed-discover-cleanup';
+                  (document.head || document.documentElement).appendChild(style);
+                }
+                if (style.textContent !== css) style.textContent = css;
+                if (!document.body) return;
                 for (const node of document.querySelectorAll('a, [role="tab"]')) {
                   if ((node.textContent || '').trim().toLowerCase() === 'ai mode') {
                     const item = node.closest('li') || node;
@@ -171,18 +212,24 @@ public partial class MainWindow : Window
                   }
                 }
               };
-              hideAiMode();
-              new MutationObserver(hideAiMode).observe(document.body, {childList:true, subtree:true});
+              apply();
+              const start = () => {
+                if (!document.documentElement) return;
+                new MutationObserver(apply).observe(document.documentElement, {childList:true, subtree:true});
+                apply();
+              };
+              if (document.documentElement) start();
+              else document.addEventListener('DOMContentLoaded', start, {once:true});
             })();
             """;
         try
         {
             if (GoogleDiscoverBrowser.CoreWebView2 is not null)
-                await GoogleDiscoverBrowser.CoreWebView2.ExecuteScriptAsync(discoverStyle);
+                await GoogleDiscoverBrowser.CoreWebView2.ExecuteScriptAsync(cleanupScript);
         }
         catch (Exception)
         {
-            // A Google page can refuse DOM access or change markup; keep results usable.
+            // Google may change its markup. The search page remains usable.
         }
     }
 
