@@ -37,10 +37,30 @@
   <Style TargetType="ComboBox">
    <Setter Property="Foreground" Value="#E6F3FA"/>
    <Setter Property="Background" Value="#193247"/>
-   <Setter Property="BorderBrush" Value="#335568"/>
-   <Setter Property="Height" Value="38"/>
+   <Setter Property="Height" Value="40"/>
    <Setter Property="FontSize" Value="13"/>
-   <Setter Property="Padding" Value="12,6"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="ComboBox">
+      <Grid>
+       <ToggleButton x:Name="Toggle" Focusable="False" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Background="Transparent" BorderThickness="0">
+        <Border Background="#193247" BorderBrush="#335568" BorderThickness="1" CornerRadius="9">
+         <Grid Margin="14,0,12,0">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="{Binding SelectedItem.Content, RelativeSource={RelativeSource AncestorType=ComboBox}}" Foreground="#E6F3FA" FontSize="13" VerticalAlignment="Center"/>
+          <Path Grid.Column="1" Data="M 0,0 L 5,5 10,0" Stroke="#82E6CD" StrokeThickness="1.6" VerticalAlignment="Center"/>
+         </Grid>
+        </Border>
+       </ToggleButton>
+       <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+        <Border Background="#193247" BorderBrush="#335568" BorderThickness="1" CornerRadius="9" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="240">
+         <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsPresenter/></ScrollViewer>
+        </Border>
+       </Popup>
+      </Grid>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
   </Style>
   <Style TargetType="ComboBoxItem">
    <Setter Property="Foreground" Value="#E6F3FA"/>
