@@ -137,11 +137,53 @@ public partial class MainWindow : Window
         }
     }
 
-    private void GoogleNavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+    private async void GoogleNavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
     {
         GoogleLoadingText.Visibility = e.IsSuccess ? Visibility.Collapsed : Visibility.Visible;
         if (!e.IsSuccess)
-            GoogleLoadingText.Text = "Google Images could not load here. Try Open in browser.";
+        {
+            GoogleLoadingText.Text = "Google Images could not load here. Check your connection.";
+            return;
+        }
+
+        // The app provides its own search field. Keep Google's image grid and
+        // refinement chips, but remove the duplicated Google search/navigation header.
+        // Google can change its page markup, so these selectors are best-effort.
+        const string discoverStyle = """
+            (() => {
+              if (document.getElementById('seed-discover-cleanup')) return;
+              const style = document.createElement('style');
+              style.id = 'seed-discover-cleanup';
+              style.textContent = `
+                #searchform, #gb, #top_nav, #hdtb, header[role="banner"],
+                [role="search"], [role="navigation"][aria-label="Search"],
+                [role="navigation"][aria-label="Search options"] {
+                  display: none !important;
+                }
+                body { padding-top: 0 !important; }
+              `;
+              document.head.appendChild(style);
+              const hideAiMode = () => {
+                for (const node of document.querySelectorAll('a, [role="tab"]')) {
+                  if ((node.textContent || '').trim().toLowerCase() === 'ai mode') {
+                    const item = node.closest('li') || node;
+                    if (item.style.display !== 'none') item.style.display = 'none';
+                  }
+                }
+              };
+              hideAiMode();
+              new MutationObserver(hideAiMode).observe(document.body, {childList:true, subtree:true});
+            })();
+            """;
+        try
+        {
+            if (GoogleDiscoverBrowser.CoreWebView2 is not null)
+                await GoogleDiscoverBrowser.CoreWebView2.ExecuteScriptAsync(discoverStyle);
+        }
+        catch (Exception)
+        {
+            // A Google page can refuse DOM access or change markup; keep results usable.
+        }
     }
 
     private void GoogleBack_Click(object sender, RoutedEventArgs e)
