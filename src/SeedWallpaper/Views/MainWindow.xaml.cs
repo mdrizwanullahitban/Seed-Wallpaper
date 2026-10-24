@@ -12,6 +12,7 @@ namespace SeedWallpaper.Views;
 public partial class MainWindow : Window
 {
     private readonly LocalWallpaperService _library = new();
+    private readonly FavoritesService _favorites = new();
     private readonly Brush _activeBrush = (Brush)new BrushConverter().ConvertFromString("#1C6D75")!;
     private readonly Brush _inactiveBrush = Brushes.Transparent;
     private string? _selectedPath;
@@ -22,6 +23,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         ShowGarden();
+        ClearSelection();
     }
 
     private void SetPage(string title, string description, bool showLibrary, Button active)
@@ -50,10 +52,68 @@ public partial class MainWindow : Window
         var term = SearchBox.Text.Trim();
         var filtered = _images.Where(path => Path.GetFileName(path).Contains(term, StringComparison.OrdinalIgnoreCase)).ToList();
         GalleryList.ItemsSource = filtered;
+        if (_selectedPath is not null && filtered.Contains(_selectedPath))
+            GalleryList.SelectedItem = _selectedPath;
+        else
+            ClearSelection();
         EmptyHint.Text = _images.Count == 0
             ? "Your garden is waiting.\nImport your first wallpaper to begin."
             : "No wallpapers match your search.";
         EmptyHint.Visibility = _showLibrary && filtered.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void ClearSelection()
+    {
+        _selectedPath = null;
+        PreviewImage.Source = null;
+        SelectedText.Text = "Select a wallpaper";
+        FavoriteButton.Content = "♡  Add to Favourites";
+        ApplyButton.IsEnabled = false;
+        FavoriteButton.IsEnabled = false;
+        DeleteButton.IsEnabled = false;
+    }
+
+    private void OpenFolder_Click(object sender, RoutedEventArgs e)
+    {
+        Directory.CreateDirectory(LocalWallpaperService.GardenFolder);
+        Process.Start(new ProcessStartInfo("explorer.exe", LocalWallpaperService.GardenFolder)
+        { UseShellExecute = true });
+    }
+
+    private void Favorite_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedPath is null) return;
+        try
+        {
+            var added = _favorites.Toggle(_selectedPath);
+            FavoriteButton.Content = added ? "♥  Remove Favourite" : "♡  Add to Favourites";
+            StatusText.Text = added ? "Added to favourites." : "Removed from favourites.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Could not save favourite", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void Delete_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedPath is null) return;
+        var path = _selectedPath;
+        if (MessageBox.Show("Remove this image from My Garden? The imported copy will be deleted.",
+            "Confirm removal", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+        try
+        {
+            PreviewImage.Source = null;
+            File.Delete(path);
+            _favorites.Remove(path);
+            ClearSelection();
+            ShowGarden();
+            StatusText.Text = "Wallpaper removed from My Garden.";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Could not remove wallpaper", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void Search_Changed(object sender, TextChangedEventArgs e)
@@ -104,8 +164,12 @@ public partial class MainWindow : Window
             bitmap.EndInit();
             PreviewImage.Source = bitmap;
             SelectedText.Text = Path.GetFileName(path);
+            FavoriteButton.Content = _favorites.Contains(path) ? "♥  Remove Favourite" : "♡  Add to Favourites";
+            ApplyButton.IsEnabled = true;
+            FavoriteButton.IsEnabled = true;
+            DeleteButton.IsEnabled = true;
         }
-        catch (Exception ex) { StatusText.Text = "Preview failed: " + ex.Message; }
+        catch (Exception ex) { ClearSelection(); StatusText.Text = "Preview failed: " + ex.Message; }
     }
 
     private void Apply_Click(object sender, RoutedEventArgs e)
