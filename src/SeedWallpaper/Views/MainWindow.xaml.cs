@@ -24,6 +24,9 @@ public partial class MainWindow : Window
     private string? _studioReferencePath;
     private bool _perchanceInitialized;
     private bool _googleInitialized;
+    private bool _isFullscreen;
+    private WindowState _beforeFullscreenState = WindowState.Normal;
+    private ResizeMode _beforeFullscreenResize = ResizeMode.CanResize;
     private int _googleNavigationVersion;
     private OnlineWallpaper? _selectedOnline;
     private string _page = "Home";
@@ -80,6 +83,67 @@ public partial class MainWindow : Window
     {
         try { Process.Start(new ProcessStartInfo("ms-settings:network-status") { UseShellExecute = true }); }
         catch (Exception ex) { MessageBox.Show(ex.Message, "Network settings"); }
+    }
+
+    private void ToggleFullscreen()
+    {
+        if (!_isFullscreen)
+        {
+            _beforeFullscreenState = WindowState;
+            _beforeFullscreenResize = ResizeMode;
+            _isFullscreen = true;
+            WindowTitleBar.Visibility = Visibility.Collapsed;
+            TitleBarRow.Height = new GridLength(0);
+            ResizeMode = ResizeMode.NoResize;
+            WindowState = WindowState.Maximized;
+        }
+        else
+        {
+            _isFullscreen = false;
+            WindowState = _beforeFullscreenState;
+            ResizeMode = _beforeFullscreenResize;
+            TitleBarRow.Height = new GridLength(38);
+            WindowTitleBar.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Alt) == 0)
+            return;
+        if (e.SystemKey == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Enter)
+        {
+            e.Handled = true;
+            ToggleFullscreen();
+        }
+        else if (e.SystemKey == System.Windows.Input.Key.Back || e.Key == System.Windows.Input.Key.Back)
+        {
+            e.Handled = true;
+            Close();
+        }
+    }
+
+    private void RegisterBrowserShortcuts(Microsoft.Web.WebView2.Wpf.WebView2 browser)
+    {
+        if (browser.CoreWebView2 is null) return;
+        browser.CoreWebView2.AcceleratorKeyPressed += (_, e) =>
+        {
+            if (e.KeyEventKind is not (Microsoft.Web.WebView2.Core.CoreWebView2KeyEventKind.KeyDown
+                or Microsoft.Web.WebView2.Core.CoreWebView2KeyEventKind.SystemKeyDown))
+                return;
+            if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Alt) == 0)
+                return;
+            if (e.VirtualKey == 0x0D)
+            {
+                e.Handled = true;
+                Dispatcher.BeginInvoke(ToggleFullscreen);
+            }
+            else if (e.VirtualKey == 0x08)
+            {
+                e.Handled = true;
+                Dispatcher.BeginInvoke(new Action(Close));
+            }
+        };
     }
 
     private void WindowMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
@@ -174,6 +238,7 @@ public partial class MainWindow : Window
             if (!_googleInitialized)
             {
                 await GoogleDiscoverBrowser.EnsureCoreWebView2Async();
+                RegisterBrowserShortcuts(GoogleDiscoverBrowser);
                 GoogleDiscoverBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
                 // Register before navigation, so Google's header is hidden before
                 // the first paint and again on every reload or result navigation.
@@ -547,6 +612,7 @@ public partial class MainWindow : Window
         try
         {
             await PerchanceBrowser.EnsureCoreWebView2Async();
+            RegisterBrowserShortcuts(PerchanceBrowser);
             PerchanceBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
             PerchanceBrowser.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
             PerchanceBrowser.Source = new Uri("https://perchance.org/03tqzy7x1l");
