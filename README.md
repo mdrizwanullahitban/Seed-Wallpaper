@@ -1,29 +1,39 @@
 # 🌱 Seed Wallpaper
 
-A nature-inspired C# WPF wallpaper application for Windows.
+A nature-inspired Windows wallpaper application built with C#, WPF and .NET 10.
 
-## Phase 1 — Foundation
-This first milestone is a navigable application shell, not a complete wallpaper engine. It includes a dark forest-green theme and placeholder pages for Home, Discover, Seed Studio, My Garden and Settings.
+## Current status: Phase 2, milestone 1
 
-## Requirements
-- Windows 10/11
-- .NET 10 SDK
-- Visual Studio with .NET desktop development workload, or `dotnet` CLI
+**Implemented:**
+- Forest-green WPF desktop interface and page navigation
+- My Garden local image import (JPG, PNG, BMP)
+- Persistent local wallpaper collection at `%LOCALAPPDATA%\SeedWallpaper\MyGarden`
+- Image preview
+- Native Windows desktop wallpaper application with Fill, Fit, Stretch, Center, Tile and Span
+- Apply destination dialog: Desktop, Lock screen, Both
+- Lock-screen fallback opens Windows Settings (direct setting not implemented)
 
-## Run
+**Not yet implemented:** online wallpaper discovery, AI Studio, favourites, slideshow, full MVVM refactor, automatic tests and installer.
+
+## Run on Windows
+
+Requires .NET 10 SDK.
+
 ```powershell
-cd src/SeedWallpaper
-dotnet restore
-dotnet run
+git pull origin main
+dotnet build .\src\SeedWallpaper\SeedWallpaper.csproj
+dotnet run --project .\src\SeedWallpaper\SeedWallpaper.csproj
 ```
 
-## Roadmap
-1. WPF application foundation and navigation
-2. Wallpaper discovery and local image library
-3. Windows desktop wallpaper integration and destination dialog
-4. AI Studio with provider adapters and reference images
-5. Security, caching, testing and packaging
+## Test
 
-**Notes:** Direct Windows lock-screen changes depend on platform capabilities and policy. AI providers may impose fees, usage restrictions or provenance markers. Never commit API keys.
+1. Open My Garden and import a JPG or PNG.
+2. Select it to see a preview.
+3. Click Apply Wallpaper, select Desktop and choose Fill.
+4. Confirm that your Windows desktop wallpaper changes.
 
-The project has not been compiled on Windows in this environment.
+## Security and permissions
+
+Desktop wallpaper changes normally run under the current Windows user without elevation. The application writes imported images to the current user's local application data directory. Lock-screen changes depend on Windows capabilities and policies, so the current implementation opens the Windows Personalisation settings page instead. No API credentials are included.
+
+**Build verification:** Code was pushed through GitHub but has not been compiled in this environment; validate with `dotnet build` on Windows.
