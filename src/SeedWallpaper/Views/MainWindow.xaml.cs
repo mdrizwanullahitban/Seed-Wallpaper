@@ -131,6 +131,19 @@ public partial class MainWindow : Window
     private void Settings_Click(object sender, RoutedEventArgs e) =>
         SetPage("Settings", "More personalisation options are coming soon.", false, SettingsButton);
 
+    private void Minimize_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState.Minimized;
+
+    private void Maximize_Click(object sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState == WindowState.Maximized
+            ? WindowState.Normal
+            : WindowState.Maximized;
+        MaximizeButton.Content = WindowState == WindowState.Maximized ? "❐" : "□";
+    }
+
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
     private void Refresh_Click(object sender, RoutedEventArgs e) => ShowGarden();
 
     private void Import_Click(object sender, RoutedEventArgs e)
