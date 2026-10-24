@@ -23,6 +23,7 @@ public partial class MainWindow : Window
     private string? _studioReferencePath;
     private bool _perchanceInitialized;
     private bool _googleInitialized;
+    private int _googleNavigationVersion;
     private OnlineWallpaper? _selectedOnline;
     private string _page = "Home";
     private int _searchGeneration;
@@ -161,8 +162,9 @@ public partial class MainWindow : Window
                     """);
                 _googleInitialized = true;
             }
+            GoogleDiscoverBrowser.Visibility = Visibility.Hidden;
             GoogleLoadingText.Visibility = Visibility.Visible;
-            GoogleLoadingText.Text = "Loading Google Images…";
+            GoogleLoadingText.Text = "Finding wallpapers…";
             GoogleDiscoverBrowser.CoreWebView2.Navigate(url);
         }
         catch (Exception ex)
@@ -173,12 +175,21 @@ public partial class MainWindow : Window
         }
     }
 
+    private void GoogleNavigationStarting(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationStartingEventArgs e)
+    {
+        ++_googleNavigationVersion;
+        GoogleDiscoverBrowser.Visibility = Visibility.Hidden;
+        GoogleLoadingText.Text = "Preparing wallpaper results…";
+        GoogleLoadingText.Visibility = Visibility.Visible;
+    }
+
     private async void GoogleNavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
     {
-        GoogleLoadingText.Visibility = e.IsSuccess ? Visibility.Collapsed : Visibility.Visible;
+        var navigationVersion = _googleNavigationVersion;
         if (!e.IsSuccess)
         {
             GoogleLoadingText.Text = "Google Images could not load here. Check your connection.";
+            GoogleLoadingText.Visibility = Visibility.Visible;
             return;
         }
 
@@ -225,11 +236,20 @@ public partial class MainWindow : Window
         try
         {
             if (GoogleDiscoverBrowser.CoreWebView2 is not null)
+            {
                 await GoogleDiscoverBrowser.CoreWebView2.ExecuteScriptAsync(cleanupScript);
+                // Let the image grid and cleanup observer settle before revealing the browser.
+                await Task.Delay(350);
+                if (navigationVersion != _googleNavigationVersion) return;
+                GoogleDiscoverBrowser.Visibility = Visibility.Visible;
+                GoogleLoadingText.Visibility = Visibility.Collapsed;
+            }
         }
         catch (Exception)
         {
-            // Google may change its markup. The search page remains usable.
+            if (navigationVersion != _googleNavigationVersion) return;
+            GoogleLoadingText.Text = "Could not prepare the image results. Try another search.";
+            GoogleLoadingText.Visibility = Visibility.Visible;
         }
     }
 
