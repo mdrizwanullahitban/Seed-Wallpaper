@@ -22,6 +22,7 @@ public partial class MainWindow : Window
     private string? _studioGeneratedPath;
     private string? _studioReferencePath;
     private bool _perchanceInitialized;
+    private bool _googleInitialized;
     private OnlineWallpaper? _selectedOnline;
     private string _page = "Home";
     private int _searchGeneration;
@@ -70,9 +71,10 @@ public partial class MainWindow : Window
         CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
         StudioPanel.Visibility = Visibility.Collapsed;
         PerchanceStudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
+        GoogleDiscoverPanel.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
         TopSearchBar.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
-        GalleryWorkspace.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
-        WallpaperDetailsPanel.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
+        GalleryScroll.Visibility = _page is "Studio" or "Discover" ? Visibility.Collapsed : Visibility.Visible;
+        WallpaperDetailsPanel.Visibility = _page is "Studio" or "Discover" ? Visibility.Collapsed : Visibility.Visible;
         SearchBox.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         MoreButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
         GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
@@ -107,11 +109,58 @@ public partial class MainWindow : Window
 
     private async Task ShowDiscoverAsync()
     {
-        SetPage("Discover", "Search freely licensed images from Wikimedia Commons. Review each image's licence and attribution.", false, DiscoverButton);
-        EmptyHint.Text = "Searching online wallpapers...";
-        EmptyHint.Visibility = Visibility.Visible;
-        if (string.IsNullOrWhiteSpace(SearchBox.Text)) SearchBox.Text = "nature landscape";
-        await SearchOnlineAsync(SearchBox.Text);
+        SetPage("Discover", "Search Google Images for wallpapers.", false, DiscoverButton);
+        await NavigateGoogleAsync(string.IsNullOrWhiteSpace(SearchBox.Text) ? "4k desktop wallpapers" : SearchBox.Text);
+    }
+
+    private async Task NavigateGoogleAsync(string query)
+    {
+        var url = "https://www.google.com/search?tbm=isch&q=" +
+            Uri.EscapeDataString(string.IsNullOrWhiteSpace(query) ? "4k desktop wallpapers" : query.Trim());
+        try
+        {
+            if (!_googleInitialized)
+            {
+                await GoogleDiscoverBrowser.EnsureCoreWebView2Async();
+                GoogleDiscoverBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
+                _googleInitialized = true;
+            }
+            GoogleLoadingText.Visibility = Visibility.Visible;
+            GoogleLoadingText.Text = "Loading Google Images…";
+            GoogleDiscoverBrowser.CoreWebView2.Navigate(url);
+        }
+        catch (Exception ex)
+        {
+            GoogleLoadingText.Text = "Could not load Google Images: " + ex.Message +
+                ". Use Open in browser instead.";
+            GoogleLoadingText.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void GoogleNavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
+    {
+        GoogleLoadingText.Visibility = e.IsSuccess ? Visibility.Collapsed : Visibility.Visible;
+        if (!e.IsSuccess)
+            GoogleLoadingText.Text = "Google Images could not load here. Try Open in browser.";
+    }
+
+    private void GoogleBack_Click(object sender, RoutedEventArgs e)
+    {
+        if (GoogleDiscoverBrowser.CanGoBack) GoogleDiscoverBrowser.GoBack();
+    }
+
+    private void GoogleReload_Click(object sender, RoutedEventArgs e)
+    {
+        if (GoogleDiscoverBrowser.CoreWebView2 is not null) GoogleDiscoverBrowser.Reload();
+        else _ = NavigateGoogleAsync(SearchBox.Text);
+    }
+
+    private void GoogleOpen_Click(object sender, RoutedEventArgs e)
+    {
+        var url = GoogleDiscoverBrowser.Source?.AbsoluteUri ??
+            "https://www.google.com/search?tbm=isch&q=4k%20desktop%20wallpapers";
+        if (!url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return;
+        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
 
     private async Task SearchOnlineAsync(string term)
@@ -215,7 +264,8 @@ public partial class MainWindow : Window
         if (e.Key == System.Windows.Input.Key.Enter && (_page is "Discover" or "Home"))
         {
             e.Handled = true;
-            _ = SearchOnlineAsync(SearchBox.Text);
+            if (_page == "Discover") _ = NavigateGoogleAsync(SearchBox.Text);
+            else _ = SearchOnlineAsync(SearchBox.Text);
         }
     }
 
