@@ -214,6 +214,11 @@ public partial class MainWindow : Window
             e.Handled = true;
             ToggleFullscreen();
         }
+        else if (e.SystemKey == System.Windows.Input.Key.M || e.Key == System.Windows.Input.Key.M)
+        {
+            e.Handled = true;
+            WindowState = WindowState.Minimized;
+        }
         else if (e.SystemKey == System.Windows.Input.Key.Back || e.Key == System.Windows.Input.Key.Back)
         {
             e.Handled = true;
