@@ -146,6 +146,7 @@
         Foreground="#88A9BC" TextAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
        <ListBox x:Name="OnlineList" PreviewMouseWheel="GalleryList_PreviewMouseWheel" Visibility="Collapsed" Background="Transparent" BorderThickness="0" Foreground="White"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Online_SelectionChanged">
+        <ListBox.ContextMenu><ContextMenu><MenuItem Header="Apply as desktop wallpaper" Click="OnlineContextApply_Click"/><MenuItem Header="Download to My Garden" Click="OnlineContextDownload_Click"/></ContextMenu></ListBox.ContextMenu>
         <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
         <ListBox.ItemTemplate><DataTemplate>
          <StackPanel Width="174">
@@ -159,6 +160,7 @@
        </ListBox>
        <ListBox x:Name="GalleryList" PreviewMouseWheel="GalleryList_PreviewMouseWheel" Background="Transparent" BorderThickness="0" Foreground="White"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Gallery_SelectionChanged">
+        <ListBox.ContextMenu><ContextMenu><MenuItem Header="Apply as desktop wallpaper" Click="GardenContextApply_Click"/></ContextMenu></ListBox.ContextMenu>
         <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
         <ListBox.ItemTemplate><DataTemplate>
          <StackPanel Width="174">
