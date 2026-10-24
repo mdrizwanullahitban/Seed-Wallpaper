@@ -21,10 +21,7 @@
   <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
   <Border Background="#091C28" BorderBrush="#19354B" BorderThickness="0,0,1,0">
    <DockPanel Margin="18,28,14,24">
-    <StackPanel DockPanel.Dock="Bottom" Margin="8,0,0,4">
-     <TextBlock Text="✦  A new wallpaper" Foreground="#7BA5B7" FontSize="12"/>
-     <TextBlock Text="is a new beginning." Foreground="#7BA5B7" FontSize="12" Margin="19,3,0,0"/>
-    </StackPanel>
+
     <StackPanel DockPanel.Dock="Top">
      <TextBlock Text="✦  Seed" FontSize="31" FontWeight="Bold" Foreground="#63E4BA"/>
      <TextBlock Text="W A L L P A P E R" Foreground="#A8C5D3" FontSize="10" Margin="13,0,0,48"/>
@@ -322,7 +319,7 @@
      </StackPanel>
     </Border>
    </Grid>
-   <TextBlock x:Name="StatusText" Grid.Row="2" Text="Seed Wallpaper  •  Local collection" Foreground="#87A9BA" Margin="0,15,0,0" FontSize="12"/>
+   <TextBlock x:Name="StatusText" Visibility="Collapsed" Grid.Row="2" Text="Seed Wallpaper  •  Local collection" Foreground="#87A9BA" Margin="0,15,0,0" FontSize="12"/>
   </Grid>
  </Grid>
  </Grid>
