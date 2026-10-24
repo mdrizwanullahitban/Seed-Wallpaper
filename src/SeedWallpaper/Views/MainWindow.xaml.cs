@@ -123,31 +123,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void RegisterBrowserShortcuts(Microsoft.Web.WebView2.Wpf.WebView2 browser)
-    {
-        // WPF WebView2 exposes the controller event through CoreWebView2Controller,
-        // not CoreWebView2. Keep native window shortcuts working inside web content.
-        if (browser.CoreWebView2Controller is null) return;
-        browser.CoreWebView2Controller.AcceleratorKeyPressed += (_, e) =>
-        {
-            if (e.KeyEventKind is not (Microsoft.Web.WebView2.Core.CoreWebView2KeyEventKind.KeyDown
-                or Microsoft.Web.WebView2.Core.CoreWebView2KeyEventKind.SystemKeyDown))
-                return;
-            if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Alt) == 0)
-                return;
-            if (e.VirtualKey == 0x0D)
-            {
-                e.Handled = true;
-                Dispatcher.BeginInvoke(new Action(ToggleFullscreen));
-            }
-            else if (e.VirtualKey == 0x08)
-            {
-                e.Handled = true;
-                Dispatcher.BeginInvoke(new Action(Close));
-            }
-        };
-    }
-
     private void WindowMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
     private void WindowMaximize_Click(object sender, RoutedEventArgs e) =>
@@ -241,7 +216,7 @@ public partial class MainWindow : Window
             if (!_googleInitialized)
             {
                 await GoogleDiscoverBrowser.EnsureCoreWebView2Async();
-                RegisterBrowserShortcuts(GoogleDiscoverBrowser);
+
                 GoogleDiscoverBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
                 // Register before navigation, so Google's header is hidden before
                 // the first paint and again on every reload or result navigation.
@@ -615,7 +590,7 @@ public partial class MainWindow : Window
         try
         {
             await PerchanceBrowser.EnsureCoreWebView2Async();
-            RegisterBrowserShortcuts(PerchanceBrowser);
+
             PerchanceBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
             PerchanceBrowser.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
             PerchanceBrowser.Source = new Uri("https://perchance.org/03tqzy7x1l");
