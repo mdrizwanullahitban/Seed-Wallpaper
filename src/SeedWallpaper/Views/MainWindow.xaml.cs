@@ -28,7 +28,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         ShowHome();
         ClearSelection();
-        Loaded += async (_, _) => await SearchOnlineAsync("nature landscape");
+        Loaded += async (_, _) => await SearchOnlineAsync("featured pictures landscape");
     }
 
     private void SetPage(string title, string description, bool showLibrary, Button active)
@@ -46,6 +46,7 @@ public partial class MainWindow : Window
         ApplyButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         FavoriteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
+        CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
         GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
         ClearSelection();
         GalleryList.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
@@ -61,10 +62,17 @@ public partial class MainWindow : Window
 
     private void ShowHome()
     {
-        SetPage("Welcome to Seed", "Featured wallpapers from Wikimedia Commons. Select an image to preview, or search for something new.", false, HomeButton);
+        SetPage("Explore Collections", "Browse wallpaper categories and featured selections. Choose a collection to see online images.", false, HomeButton);
         EmptyHint.Text = "Loading featured wallpapers...";
         EmptyHint.Visibility = Visibility.Visible;
         StatusText.Text = "Welcome to Seed Wallpaper.";
+    }
+
+    private async void Category_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || button.Tag is not string query) return;
+        GalleryHeading.Text = button.Content + " Wallpapers";
+        await SearchOnlineAsync(query);
     }
 
     private async void Browse_Click(object sender, RoutedEventArgs e) => await ShowDiscoverAsync();
@@ -147,7 +155,7 @@ public partial class MainWindow : Window
 
     private void Search_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
-        if (e.Key == System.Windows.Input.Key.Enter && _page is "Discover" or "Home")
+        if (e.Key == System.Windows.Input.Key.Enter && (_page is "Discover" or "Home"))
         {
             e.Handled = true;
             _ = SearchOnlineAsync(SearchBox.Text);
@@ -238,7 +246,7 @@ public partial class MainWindow : Window
     private async void Home_Click(object sender, RoutedEventArgs e)
     {
         ShowHome();
-        await SearchOnlineAsync(string.IsNullOrWhiteSpace(SearchBox.Text) ? "nature landscape" : SearchBox.Text);
+        await SearchOnlineAsync("featured pictures landscape");
     }
     private async void Discover_Click(object sender, RoutedEventArgs e) => await ShowDiscoverAsync();
     private void Studio_Click(object sender, RoutedEventArgs e) =>
