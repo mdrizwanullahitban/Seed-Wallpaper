@@ -193,6 +193,17 @@
           <TextBlock Text="Alt + Enter" Foreground="#C7F5E6" FontWeight="SemiBold"/>
          </Border>
         </Grid>
+        <Grid Margin="0,0,0,16">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <StackPanel>
+          <TextBlock Text="Minimise to taskbar" Foreground="#EFF6FF" FontWeight="SemiBold" FontSize="14"/>
+          <TextBlock Text="Hide the window without closing the app" Foreground="#9EB7C8" FontSize="12" Margin="0,5,0,0"/>
+         </StackPanel>
+         <Border Grid.Column="1" Background="#234459" CornerRadius="8" Padding="14,9">
+          <TextBlock Text="Alt + M" Foreground="#C7F5E6" FontWeight="SemiBold"/>
+         </Border>
+        </Grid>
+        <Separator Background="#2B4B5C" Margin="0,0,0,16"/>
         <Separator Background="#2B4B5C" Margin="0,0,0,16"/>
         <Grid>
          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
