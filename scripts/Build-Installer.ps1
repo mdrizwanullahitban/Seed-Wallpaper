@@ -4,7 +4,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $root
 New-Item -ItemType Directory -Force assets, publish, dist | Out-Null
 & (Join-Path $PSScriptRoot "Generate-Icon.ps1")
-if ($LASTEXITCODE -ne 0) { throw "Icon generation failed" }
+if (-not (Test-Path (Join-Path $root "assets\SeedWallpaper.ico"))) { throw "Icon generation failed: icon file was not created" }
 dotnet publish .\src\SeedWallpaper\SeedWallpaper.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none -o .\publish
 if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
 if ($SkipInstaller) { Write-Host "Portable application ready at publish\SeedWallpaper.exe"; exit }
