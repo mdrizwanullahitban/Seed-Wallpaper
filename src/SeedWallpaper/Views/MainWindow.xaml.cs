@@ -37,6 +37,7 @@ public partial class MainWindow : Window
         _showLibrary = showLibrary;
         _page = active == DiscoverButton ? "Discover" : active == GardenButton ? "Garden" : active == HomeButton ? "Home" : active == StudioButton ? "Studio" : "Settings";
         OnlineList.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
+        if (_page != "Discover") _selectedOnline = null;
         BrowseButton.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
         DownloadButton.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
         SourceButton.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
@@ -50,6 +51,7 @@ public partial class MainWindow : Window
         EmptyHint.Visibility = showLibrary && _images.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ImportButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         RefreshButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
+        OpenFolderButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         SearchBox.IsEnabled = showLibrary || _page == "Discover";
         SearchBox.ToolTip = _page == "Discover" ? "Type a subject and press Enter to search Wikimedia Commons" : "Filter My Garden by filename";
         foreach (var button in new[] { HomeButton, DiscoverButton, StudioButton, GardenButton, SettingsButton })
@@ -105,7 +107,15 @@ public partial class MainWindow : Window
     {
         _selectedOnline = OnlineList.SelectedItem as OnlineWallpaper;
         if (_selectedOnline is null) return;
-        PreviewImage.Source = new BitmapImage(new Uri(_selectedOnline.PreviewUrl));
+        try
+        {
+            PreviewImage.Source = new BitmapImage(new Uri(_selectedOnline.PreviewUrl));
+        }
+        catch (Exception ex)
+        {
+            PreviewImage.Source = null;
+            StatusText.Text = "Preview unavailable: " + ex.Message;
+        }
         SelectedText.Text = _selectedOnline.Title;
         CreditText.Text = $"Licence: {_selectedOnline.License}\nCreator: {_selectedOnline.Artist}";
         DownloadButton.IsEnabled = true;
