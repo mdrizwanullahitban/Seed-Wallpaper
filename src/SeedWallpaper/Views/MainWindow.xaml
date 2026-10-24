@@ -33,7 +33,11 @@
        CaretBrush="#53E7BB" VerticalContentAlignment="Center" FontSize="14" ToolTip="Search imported wallpapers by filename"/>
      </DockPanel>
     </Border>
-    <TextBlock Grid.Column="1" Text="SEED  /  DESKTOP" VerticalAlignment="Center" Margin="24,0,0,0" Foreground="#86A8BB" FontSize="12"/>
+    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+     <Button Content="&#x2014;" Click="Minimize_Click" ToolTip="Minimize" Width="40" Height="40" Padding="0" Margin="0,0,6,0" FontSize="16"/>
+     <Button x:Name="MaximizeButton" Content="&#x25A1;" Click="Maximize_Click" ToolTip="Maximize or restore" Width="40" Height="40" Padding="0" Margin="0,0,6,0" FontSize="20"/>
+     <Button Content="&#x2715;" Click="Close_Click" ToolTip="Close" Width="40" Height="40" Padding="0" Margin="0" Background="#643244" FontSize="16"/>
+    </StackPanel>
    </Grid>
    <Grid Grid.Row="1">
     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="300"/></Grid.ColumnDefinitions>
