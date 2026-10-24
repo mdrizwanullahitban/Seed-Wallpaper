@@ -315,7 +315,7 @@ public partial class MainWindow : Window
             await PerchanceBrowser.EnsureCoreWebView2Async();
             PerchanceBrowser.CoreWebView2.Settings.AreDevToolsEnabled = false;
             PerchanceBrowser.CoreWebView2.Settings.AreDefaultContextMenusEnabled = true;
-            PerchanceBrowser.Source = new Uri("https://perchance.org/ai-text-to-image-generator");
+            PerchanceBrowser.Source = new Uri("https://perchance.org/03tqzy7x1l");
             _perchanceInitialized = true;
         }
         catch (Exception ex)
@@ -339,7 +339,7 @@ public partial class MainWindow : Window
     }
 
     private void PerchanceOpen_Click(object sender, RoutedEventArgs e) =>
-        Process.Start(new ProcessStartInfo("https://perchance.org/ai-text-to-image-generator") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo("https://perchance.org/03tqzy7x1l") { UseShellExecute = true });
 
     private void StudioModel_Changed(object sender, SelectionChangedEventArgs e)
     {
