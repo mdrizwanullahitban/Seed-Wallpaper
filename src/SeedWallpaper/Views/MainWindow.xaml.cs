@@ -19,6 +19,8 @@ public partial class MainWindow : Window
     private readonly List<OnlineWallpaper> _onlineResults = new();
     private string _currentQuery = "landscape";
     private int _onlinePage = 0;
+    private string? _studioGeneratedPath;
+    private string? _studioReferencePath;
     private OnlineWallpaper? _selectedOnline;
     private string _page = "Home";
     private int _searchGeneration;
@@ -53,6 +55,7 @@ public partial class MainWindow : Window
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
         StudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
+        SearchBox.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         MoreButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
         GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
         ClearSelection();
@@ -301,6 +304,55 @@ public partial class MainWindow : Window
         };
     }
 
+    private void StudioMode_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (StudioReferencePanel is null || StudioGenerate is null || StudioStatus is null) return;
+        bool imageMode = (StudioMode.SelectedItem as ComboBoxItem)?.Tag as string == "i2i";
+        StudioReferencePanel.Visibility = imageMode ? Visibility.Visible : Visibility.Collapsed;
+        StudioGenerate.IsEnabled = !imageMode;
+        StudioStatus.Text = imageMode
+            ? "Image-to-image needs a compatible backend. Reference image selection is available, but generation is not connected yet."
+            : "Ready to generate with a Pollinations API key.";
+    }
+
+    private void StudioReference_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new OpenFileDialog { Filter = "Images|*.png;*.jpg;*.jpeg" };
+        if (picker.ShowDialog() != true) return;
+        _studioReferencePath = picker.FileName;
+        StudioReferenceLabel.Text = Path.GetFileName(_studioReferencePath);
+    }
+
+    private void StudioEnhance_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(StudioPrompt.Text)) return;
+        const string suffix = ", cinematic composition, natural lighting, balanced colours, detailed desktop wallpaper";
+        if (!StudioPrompt.Text.Contains("cinematic composition", StringComparison.OrdinalIgnoreCase))
+            StudioPrompt.Text = StudioPrompt.Text.Trim().TrimEnd(',') + suffix;
+        StudioStatus.Text = "Added descriptive prompt details (local template, not AI rewriting).";
+    }
+
+    private void StudioRandomSeed_Click(object sender, RoutedEventArgs e) =>
+        StudioSeed.Text = Random.Shared.Next(1, int.MaxValue).ToString();
+
+    private void StudioOverlay_Changed(object sender, RoutedEventArgs e)
+    {
+        if (StudioDesktopOverlay is not null)
+            StudioDesktopOverlay.Visibility = StudioOverlayToggle.IsChecked == true
+                ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void StudioApply_Click(object sender, RoutedEventArgs e)
+    {
+        if (_studioGeneratedPath is null || !File.Exists(_studioGeneratedPath)) return;
+        try
+        {
+            DesktopWallpaperService.Apply(_studioGeneratedPath, "Fill");
+            StudioStatus.Text = "Applied generated image as Windows desktop wallpaper.";
+        }
+        catch (Exception ex) { StudioStatus.Text = "Could not apply wallpaper: " + ex.Message; }
+    }
+
     private async void StudioGenerate_Click(object sender, RoutedEventArgs e)
     {
         var prompt = StudioPrompt.Text.Trim();
@@ -312,6 +364,7 @@ public partial class MainWindow : Window
         }
         StudioGenerate.IsEnabled = false;
         StudioOpenGarden.IsEnabled = false;
+        StudioApply.IsEnabled = false;
         StudioStatus.Text = "Generating wallpaper... This can take a minute.";
         try
         {
@@ -331,6 +384,10 @@ public partial class MainWindow : Window
             image.CacheOption = BitmapCacheOption.OnLoad;
             image.EndInit();
             StudioResult.Source = image;
+            _studioGeneratedPath = path;
+            StudioPreviewHint.Visibility = Visibility.Collapsed;
+            StudioClock.Text = DateTime.Now.ToString("h:mm tt");
+            StudioApply.IsEnabled = true;
             StudioStatus.Text = "Wallpaper generated and saved to My Garden.";
             StudioOpenGarden.IsEnabled = true;
         }
@@ -338,7 +395,7 @@ public partial class MainWindow : Window
         {
             StudioStatus.Text = "Generation failed: " + ex.Message;
         }
-        finally { StudioGenerate.IsEnabled = true; }
+        finally { StudioGenerate.IsEnabled = (StudioMode.SelectedItem as ComboBoxItem)?.Tag as string != "i2i"; }
     }
 
     private void StudioOpenGarden_Click(object sender, RoutedEventArgs e) => ShowGarden();
