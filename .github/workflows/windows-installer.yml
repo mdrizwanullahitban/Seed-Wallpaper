@@ -1,0 +1,32 @@
+name: Windows installer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'installer/**'
+      - 'scripts/**'
+      - '.github/workflows/windows-installer.yml'
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+      - name: Build installer and portable app
+        shell: pwsh
+        run: .\scripts\Build-Installer.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SeedWallpaper-Windows-Installer
+          path: dist/SeedWallpaper-Setup.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SeedWallpaper-Portable
+          path: publish/**
