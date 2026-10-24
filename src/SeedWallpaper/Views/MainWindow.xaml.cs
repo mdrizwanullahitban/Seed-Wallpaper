@@ -288,6 +288,19 @@ public partial class MainWindow : Window
     private void Studio_Click(object sender, RoutedEventArgs e) =>
         SetPage("Seed Studio", "Create original wallpapers from a text description.", false, StudioButton);
 
+    private void StudioModel_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (StudioCustomModelPanel is null || StudioModelDescription is null) return;
+        var model = (StudioModel.SelectedItem as ComboBoxItem)?.Tag as string;
+        StudioCustomModelPanel.Visibility = model == "custom" ? Visibility.Visible : Visibility.Collapsed;
+        StudioModelDescription.Text = model switch
+        {
+            "flux" => "Flux via Pollinations. Availability and cost depend on your API account.",
+            "zimage" => "Z-Image via Pollinations. Availability and cost depend on your API account.",
+            _ => "Enter the exact model ID from your Pollinations account. Only models supported by that API can generate images."
+        };
+    }
+
     private async void StudioGenerate_Click(object sender, RoutedEventArgs e)
     {
         var prompt = StudioPrompt.Text.Trim();
@@ -303,6 +316,13 @@ public partial class MainWindow : Window
         try
         {
             var model = (StudioModel.SelectedItem as ComboBoxItem)?.Tag as string ?? "flux";
+            if (model == "custom")
+            {
+                model = StudioCustomModel.Text.Trim();
+                if (string.IsNullOrWhiteSpace(model) || model.Length > 80 ||
+                    !System.Text.RegularExpressions.Regex.IsMatch(model, "^[a-zA-Z0-9._-]+$"))
+                    throw new ArgumentException("Enter a valid Pollinations model ID (letters, digits, dots, underscores or hyphens).");
+            }
             var size = ((StudioResolution.SelectedItem as ComboBoxItem)?.Tag as string ?? "1536x1024").Split('x');
             var path = await _aiService.GenerateAsync(prompt, model, int.Parse(size[0]), int.Parse(size[1]), key);
             var image = new BitmapImage();
