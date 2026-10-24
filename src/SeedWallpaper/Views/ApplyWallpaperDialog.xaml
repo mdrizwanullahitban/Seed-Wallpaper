@@ -19,7 +19,7 @@
        <Border x:Name="Circle" Width="17" Height="17" CornerRadius="9" BorderBrush="#698999" BorderThickness="1.5" Background="#102435" VerticalAlignment="Center" HorizontalAlignment="Left">
         <Ellipse x:Name="Dot" Width="8" Height="8" Fill="#45E0B2" Visibility="Collapsed"/>
        </Border>
-       <ContentPresenter Grid.Column="1" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+       <TextBlock Grid.Column="1" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Foreground="#E6F3FA" FontSize="13" VerticalAlignment="Center"/>
       </Grid>
       <ControlTemplate.Triggers>
        <Trigger Property="IsChecked" Value="True">
@@ -46,6 +46,7 @@
    <Setter Property="Foreground" Value="#E6F3FA"/>
    <Setter Property="Background" Value="#193247"/>
    <Setter Property="Padding" Value="10,8"/>
+   <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem"><Border x:Name="ItemBackground" Background="#193247" Padding="{TemplateBinding Padding}"><TextBlock Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Foreground="#E6F3FA"/></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ItemBackground" Property="Background" Value="#276071"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemBackground" Property="Background" Value="#24534F"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
   </Style>
   <Style x:Key="DialogButton" TargetType="Button">
    <Setter Property="Cursor" Value="Hand"/>
@@ -57,7 +58,7 @@
     <Setter.Value>
      <ControlTemplate TargetType="Button">
       <Border x:Name="Surface" Background="{TemplateBinding Background}" CornerRadius="9" Padding="{TemplateBinding Padding}">
-       <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       <TextBlock Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Foreground="{TemplateBinding Foreground}" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Border>
       <ControlTemplate.Triggers>
        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Opacity" Value=".82"/></Trigger>
