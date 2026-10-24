@@ -1,4 +1,6 @@
 using System.Net.Http;
+using System.Text.Json;
+using System.Windows.Media;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -24,6 +26,8 @@ public partial class MainWindow : Window
     private string? _studioReferencePath;
     private bool _perchanceInitialized;
     private bool _googleInitialized;
+    private bool _recentOnly;
+    private static readonly string RecentFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SeedWallpaper", "recent.json");
     private bool _isFullscreen;
     private WindowState _beforeFullscreenState = WindowState.Normal;
     private ResizeMode _beforeFullscreenResize = ResizeMode.CanResize;
@@ -162,6 +166,7 @@ public partial class MainWindow : Window
         FavoriteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
+        RecentButton.Visibility = _page == "Garden" ? Visibility.Visible : Visibility.Collapsed;
         StudioPanel.Visibility = Visibility.Collapsed;
         PerchanceStudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
         GoogleDiscoverPanel.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
@@ -500,8 +505,104 @@ public partial class MainWindow : Window
         }
     }
 
+    private static List<string> LoadRecent()
+    {
+        try
+        {
+            if (File.Exists(RecentFile))
+                return JsonSerializer.Deserialize<List<string>>(File.ReadAllText(RecentFile))?
+                    .Where(File.Exists).Distinct(StringComparer.OrdinalIgnoreCase).Take(30).ToList() ?? new();
+        }
+        catch (Exception) { /* Corrupt history should not prevent opening the app. */ }
+        return new();
+    }
+
+    private static void RememberApplied(string path)
+    {
+        try
+        {
+            var recent = LoadRecent();
+            recent.RemoveAll(x => string.Equals(x, path, StringComparison.OrdinalIgnoreCase));
+            recent.Insert(0, path);
+            Directory.CreateDirectory(Path.GetDirectoryName(RecentFile)!);
+            File.WriteAllText(RecentFile, JsonSerializer.Serialize(recent.Take(30).ToList()));
+        }
+        catch (IOException) { /* Wallpaper was applied even if history cannot be saved. */ }
+        catch (UnauthorizedAccessException) { }
+    }
+
+    private void Recent_Click(object sender, RoutedEventArgs e)
+    {
+        _recentOnly = !_recentOnly;
+        RecentButton.Content = _recentOnly ? "Show All" : "Recently Used";
+        FilterGallery();
+    }
+
+    private void WallpaperList_RightClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (sender is not ListBox list) return;
+        var source = e.OriginalSource as DependencyObject;
+        while (source is not null && source is not ListBoxItem)
+            source = VisualTreeHelper.GetParent(source);
+        if (source is ListBoxItem item) list.SelectedItem = item.DataContext;
+    }
+
+    private async Task<string> DownloadOnlineAsync(OnlineWallpaper wallpaper)
+    {
+        return new Uri(wallpaper.DownloadUrl).Host.EndsWith(".wikimedia.org", StringComparison.OrdinalIgnoreCase)
+            ? await _onlineService.DownloadAsync(wallpaper)
+            : await _openverse.DownloadAsync(wallpaper);
+    }
+
+    private void ApplyWallpaperFile(string path)
+    {
+        var dialog = new ApplyWallpaperDialog { Owner = this };
+        if (dialog.ShowDialog() != true) return;
+        if (dialog.ApplyDesktop)
+        {
+            DesktopWallpaperService.Apply(path, dialog.Fit);
+            RememberApplied(path);
+            StatusText.Text = "Wallpaper applied successfully.";
+        }
+        if (dialog.OpenLockSettings)
+            Process.Start(new ProcessStartInfo("ms-settings:lockscreen") { UseShellExecute = true });
+    }
+
+    private async void OnlineContextApply_Click(object sender, RoutedEventArgs e)
+    {
+        var wallpaper = OnlineList.SelectedItem as OnlineWallpaper;
+        if (wallpaper is null) return;
+        try
+        {
+            var path = await DownloadOnlineAsync(wallpaper);
+            ApplyWallpaperFile(path);
+        }
+        catch (Exception ex) { MessageBox.Show(ex.Message, "Could not apply wallpaper", MessageBoxButton.OK, MessageBoxImage.Error); }
+    }
+
+    private async void OnlineContextDownload_Click(object sender, RoutedEventArgs e)
+    {
+        var wallpaper = OnlineList.SelectedItem as OnlineWallpaper;
+        if (wallpaper is null) return;
+        try
+        {
+            await DownloadOnlineAsync(wallpaper);
+            StatusText.Text = "Wallpaper downloaded to My Garden.";
+        }
+        catch (Exception ex) { MessageBox.Show(ex.Message, "Download failed", MessageBoxButton.OK, MessageBoxImage.Error); }
+    }
+
+    private void GardenContextApply_Click(object sender, RoutedEventArgs e)
+    {
+        if (GalleryList.SelectedItem is not string path || !File.Exists(path)) return;
+        try { ApplyWallpaperFile(path); }
+        catch (Exception ex) { MessageBox.Show(ex.Message, "Could not apply wallpaper", MessageBoxButton.OK, MessageBoxImage.Error); }
+    }
+
     private void ShowGarden()
     {
+        _recentOnly = false;
+        RecentButton.Content = "Recently Used";
         _images = _library.ListImages();
         SetPage("My Garden", "Your personal collection. Import, preview and apply wallpapers.", true, GardenButton);
         FilterGallery();
@@ -510,7 +611,8 @@ public partial class MainWindow : Window
     private void FilterGallery()
     {
         var term = SearchBox.Text.Trim();
-        var filtered = _images.Where(path => Path.GetFileName(path).Contains(term, StringComparison.OrdinalIgnoreCase)).ToList();
+        var candidates = _recentOnly ? LoadRecent() : _images.ToList();
+        var filtered = candidates.Where(path => Path.GetFileName(path).Contains(term, StringComparison.OrdinalIgnoreCase)).ToList();
         GalleryList.ItemsSource = filtered;
         if (_selectedPath is not null && filtered.Contains(_selectedPath))
             GalleryList.SelectedItem = _selectedPath;
@@ -796,6 +898,7 @@ public partial class MainWindow : Window
             if (dialog.ApplyDesktop)
             {
                 DesktopWallpaperService.Apply(_selectedPath, dialog.Fit);
+                RememberApplied(_selectedPath);
                 StatusText.Text = "Desktop wallpaper applied successfully.";
             }
             if (dialog.OpenLockSettings)
