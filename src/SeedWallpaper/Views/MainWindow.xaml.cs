@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using SeedWallpaper.Services;
@@ -76,7 +75,7 @@ public partial class MainWindow : Window
         if (browser.CoreWebView2 is null) return;
         browser.CoreWebView2.ContextMenuRequested += (_, args) =>
         {
-            if (!args.ContextMenuTarget.HasImageContents) return;
+            if (args.ContextMenuTarget.Kind != Microsoft.Web.WebView2.Core.CoreWebView2ContextMenuTargetKind.Image) return;
             var imageUrl = args.ContextMenuTarget.SourceUri;
             if (string.IsNullOrWhiteSpace(imageUrl)) return;
             var item = browser.CoreWebView2.Environment.CreateContextMenuItem(
