@@ -38,19 +38,32 @@
    <Grid Grid.Row="1">
     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="300"/></Grid.ColumnDefinitions>
     <Grid Margin="0,0,20,0">
-     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
      <StackPanel Margin="0,4,0,24">
       <TextBlock x:Name="PageTitle" Text="My Garden" FontSize="28" FontWeight="SemiBold"/>
       <TextBlock x:Name="PageDescription" Text="Your personal collection of wallpapers." Foreground="#9EB7C8" FontSize="13" Margin="0,7,0,0" TextWrapping="Wrap"/>
      </StackPanel>
-     <Grid Grid.Row="1" Margin="0,0,0,15">
+     <StackPanel x:Name="CategoryBar" Grid.Row="1" Margin="0,0,0,12">
+      <TextBlock Text="EXPLORE COLLECTIONS" Foreground="#90B7C9" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,8"/>
+      <WrapPanel>
+       <Button Content="✦ Featured" Tag="featured pictures landscape" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Content="Nature" Tag="nature landscape" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Content="Space" Tag="astronomy nebula" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Content="Cars" Tag="sports car" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Content="Architecture" Tag="architecture building" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Content="Abstract" Tag="abstract art" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Content="Minimal" Tag="minimalist landscape" Click="Category_Click" Margin="0,0,7,7"/>
+       <Button Content="Animals" Tag="wildlife photography" Click="Category_Click" Margin="0,0,7,7"/>
+      </WrapPanel>
+     </StackPanel>
+     <Grid Grid.Row="2" Margin="0,0,0,15">
       <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
       <TextBlock x:Name="GalleryHeading" Text="Wallpapers" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center"/>
       <Button x:Name="RefreshButton" Grid.Column="1" Content="↻  Refresh" Click="Refresh_Click" Margin="0,0,10,0"/>
       <Button x:Name="OpenFolderButton" Grid.Column="2" Content="Open Folder" Click="OpenFolder_Click" Margin="0,0,10,0"/>
       <Button x:Name="ImportButton" Grid.Column="3" Click="Import_Click" BorderThickness="0" Background="{StaticResource AccentGradient}" Foreground="#071824" FontWeight="SemiBold" Content="+  Import Images" Margin="0"/>
      </Grid>
-     <Border Grid.Row="2" Background="#0C202E" BorderBrush="#1B3B50" BorderThickness="1" CornerRadius="16" Padding="12">
+     <Border Grid.Row="3" Background="#0C202E" BorderBrush="#1B3B50" BorderThickness="1" CornerRadius="16" Padding="12">
       <Grid>
        <TextBlock x:Name="EmptyHint" Text="Your garden is waiting.&#10;Import your first wallpaper to begin."
         Foreground="#88A9BC" TextAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
