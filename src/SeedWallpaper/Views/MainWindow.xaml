@@ -146,7 +146,7 @@
       <Grid>
        <TextBlock x:Name="EmptyHint" Text="Your garden is waiting.&#10;Import your first wallpaper to begin."
         Foreground="#88A9BC" TextAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
-       <ListBox x:Name="OnlineList" Visibility="Collapsed" Background="Transparent" BorderThickness="0" Foreground="White"
+       <ListBox x:Name="OnlineList" PreviewMouseWheel="GalleryList_PreviewMouseWheel" Visibility="Collapsed" Background="Transparent" BorderThickness="0" Foreground="White"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Online_SelectionChanged">
         <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
         <ListBox.ItemTemplate><DataTemplate>
@@ -159,7 +159,7 @@
          </StackPanel>
         </DataTemplate></ListBox.ItemTemplate>
        </ListBox>
-       <ListBox x:Name="GalleryList" Background="Transparent" BorderThickness="0" Foreground="White"
+       <ListBox x:Name="GalleryList" PreviewMouseWheel="GalleryList_PreviewMouseWheel" Background="Transparent" BorderThickness="0" Foreground="White"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Gallery_SelectionChanged">
         <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
         <ListBox.ItemTemplate><DataTemplate>
