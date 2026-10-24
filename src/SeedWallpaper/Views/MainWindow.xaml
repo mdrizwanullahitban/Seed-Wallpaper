@@ -5,14 +5,60 @@
  Title="Seed Wallpaper" WindowStyle="None" ResizeMode="CanResize" Width="1320" Height="820" MinWidth="1020" MinHeight="610"
  WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
  FontFamily="Segoe UI" PreviewKeyDown="Window_PreviewKeyDown" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
+ <Window.Resources>
+  <Style x:Key="TitleBarControlButton" TargetType="{x:Type Button}">
+   <Setter Property="Width" Value="42"/>
+   <Setter Property="Height" Value="30"/>
+   <Setter Property="Margin" Value="2,3,2,3"/>
+   <Setter Property="Padding" Value="0"/>
+   <Setter Property="Background" Value="Transparent"/>
+   <Setter Property="Foreground" Value="#AFC0CA"/>
+   <Setter Property="BorderThickness" Value="0"/>
+   <Setter Property="Cursor" Value="Hand"/>
+   <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+   <Setter Property="Template">
+    <Setter.Value>
+     <ControlTemplate TargetType="{x:Type Button}">
+      <Border x:Name="Chrome" Background="{TemplateBinding Background}" CornerRadius="5">
+       <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border>
+      <ControlTemplate.Triggers>
+       <Trigger Property="IsMouseOver" Value="True">
+        <Setter TargetName="Chrome" Property="Background" Value="#243E4A"/>
+        <Setter Property="Foreground" Value="#72F3CE"/>
+       </Trigger>
+       <Trigger Property="IsPressed" Value="True">
+        <Setter TargetName="Chrome" Property="Background" Value="#315768"/>
+        <Setter Property="Foreground" Value="White"/>
+       </Trigger>
+      </ControlTemplate.Triggers>
+     </ControlTemplate>
+    </Setter.Value>
+   </Setter>
+  </Style>
+  <Style x:Key="TitleBarCloseButton" TargetType="{x:Type Button}" BasedOn="{StaticResource TitleBarControlButton}">
+   <Style.Triggers>
+    <Trigger Property="IsMouseOver" Value="True">
+     <Setter Property="Background" Value="#B83948"/>
+     <Setter Property="Foreground" Value="White"/>
+    </Trigger>
+   </Style.Triggers>
+  </Style>
+ </Window.Resources>
  <Grid>
   <Grid.RowDefinitions><RowDefinition x:Name="TitleBarRow" Height="38"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <Border x:Name="WindowTitleBar" Grid.Row="0" Background="#101923" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
    <DockPanel LastChildFill="True">
-    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-     <Button Content="—" Width="48" Height="36" Padding="0" Margin="0" ToolTip="Minimise" Click="WindowMinimize_Click" Background="Transparent" BorderThickness="0"/>
-     <Button Content="□" Width="48" Height="36" Padding="0" Margin="0" ToolTip="Maximise or restore" Click="WindowMaximize_Click" Background="Transparent" BorderThickness="0"/>
-     <Button Content="✕" Width="48" Height="36" Padding="0" Margin="0" ToolTip="Close" Click="WindowClose_Click" Background="Transparent" BorderThickness="0"/>
+    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+     <Button Style="{StaticResource TitleBarControlButton}" ToolTip="Minimise" Click="WindowMinimize_Click">
+      <TextBlock Text="&#xE921;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+     </Button>
+     <Button Style="{StaticResource TitleBarControlButton}" ToolTip="Maximise / Restore" Click="WindowMaximize_Click">
+      <TextBlock Text="&#xE922;" FontFamily="Segoe MDL2 Assets" FontSize="10"/>
+     </Button>
+     <Button Style="{StaticResource TitleBarCloseButton}" ToolTip="Close" Click="WindowClose_Click">
+      <TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="11"/>
+     </Button>
     </StackPanel>
     <TextBlock Text="✦  Seed Wallpaper" Foreground="#BBD7E2" VerticalAlignment="Center" Margin="15,0,0,0" FontSize="12"/>
    </DockPanel>
