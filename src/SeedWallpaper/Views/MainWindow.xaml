@@ -172,6 +172,38 @@
      </Border>
     </Grid>
     </ScrollViewer>
+    <Border x:Name="ShortcutSettingsPanel" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#0C1D2B" CornerRadius="16" Padding="32">
+     <StackPanel HorizontalAlignment="Left" Width="620">
+      <TextBlock Text="Settings" FontSize="30" FontWeight="SemiBold" Foreground="#EFF6FF"/>
+      <TextBlock Text="Personalise how you use Seed Wallpaper." Foreground="#9EB7C8" Margin="0,8,0,30"/>
+      <Border Background="#142C3C" CornerRadius="14" Padding="24" BorderBrush="#29465B" BorderThickness="1">
+       <StackPanel>
+        <TextBlock Text="⌨  KEYBOARD SHORTCUTS" Foreground="#64DDBA" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,20"/>
+        <Grid Margin="0,0,0,16">
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <StackPanel>
+          <TextBlock Text="Toggle fullscreen" Foreground="#EFF6FF" FontWeight="SemiBold" FontSize="14"/>
+          <TextBlock Text="Enter or exit fullscreen mode" Foreground="#9EB7C8" FontSize="12" Margin="0,5,0,0"/>
+         </StackPanel>
+         <Border Grid.Column="1" Background="#234459" CornerRadius="8" Padding="14,9">
+          <TextBlock Text="Alt + Enter" Foreground="#C7F5E6" FontWeight="SemiBold"/>
+         </Border>
+        </Grid>
+        <Separator Background="#2B4B5C" Margin="0,0,0,16"/>
+        <Grid>
+         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+         <StackPanel>
+          <TextBlock Text="Close Seed Wallpaper" Foreground="#EFF6FF" FontWeight="SemiBold" FontSize="14"/>
+          <TextBlock Text="Immediately exit the application" Foreground="#9EB7C8" FontSize="12" Margin="0,5,0,0"/>
+         </StackPanel>
+         <Border Grid.Column="1" Background="#234459" CornerRadius="8" Padding="14,9">
+          <TextBlock Text="Alt + Backspace" Foreground="#C7F5E6" FontWeight="SemiBold"/>
+         </Border>
+        </Grid>
+       </StackPanel>
+      </Border>
+     </StackPanel>
+    </Border>
     <Border x:Name="GoogleDiscoverPanel" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#0C0E15" BorderBrush="#303748" BorderThickness="1" CornerRadius="14">
      <DockPanel>
       <Grid Background="#0C0E15">
