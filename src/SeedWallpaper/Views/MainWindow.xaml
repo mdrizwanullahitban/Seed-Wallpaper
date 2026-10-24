@@ -133,19 +133,20 @@
       </WrapPanel>
      </StackPanel>
      <Grid Grid.Row="2" Margin="0,0,0,15">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
       <TextBlock x:Name="GalleryHeading" Text="Wallpapers" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center"/>
-      <Button x:Name="MoreButton" Grid.Column="1" Content="Load More" Click="More_Click" Visibility="Collapsed" Margin="0,0,10,0"/>
-      <Button x:Name="RefreshButton" Grid.Column="1" Content="↻  Refresh" Click="Refresh_Click" Margin="0,0,10,0"/>
-      <Button x:Name="OpenFolderButton" Grid.Column="2" Content="Open Folder" Click="OpenFolder_Click" Margin="0,0,10,0"/>
-      <Button x:Name="ImportButton" Grid.Column="3" Click="Import_Click" BorderThickness="0" Background="{StaticResource AccentGradient}" Foreground="#071824" FontWeight="SemiBold" Content="+  Import Images" Margin="0"/>
+      <Button x:Name="RecentButton" Grid.Column="1" Content="Recently Used" Click="Recent_Click" Visibility="Collapsed" Margin="0,0,10,0"/>
+      <Button x:Name="MoreButton" Grid.Column="2" Content="Load More" Click="More_Click" Visibility="Collapsed" Margin="0,0,10,0"/>
+      <Button x:Name="RefreshButton" Grid.Column="2" Content="↻  Refresh" Click="Refresh_Click" Margin="0,0,10,0"/>
+      <Button x:Name="OpenFolderButton" Grid.Column="3" Content="Open Folder" Click="OpenFolder_Click" Margin="0,0,10,0"/>
+      <Button x:Name="ImportButton" Grid.Column="4" Click="Import_Click" BorderThickness="0" Background="{StaticResource AccentGradient}" Foreground="#071824" FontWeight="SemiBold" Content="+  Import Images" Margin="0"/>
      </Grid>
      <Border Grid.Row="3" Background="#0C202E" BorderBrush="#1B3B50" BorderThickness="1" CornerRadius="16" Padding="12">
       <Grid>
        <TextBlock x:Name="EmptyHint" Text="Your garden is waiting.&#10;Import your first wallpaper to begin."
         Foreground="#88A9BC" TextAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
        <ListBox x:Name="OnlineList" PreviewMouseWheel="GalleryList_PreviewMouseWheel" Visibility="Collapsed" Background="Transparent" BorderThickness="0" Foreground="White"
-        ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Online_SelectionChanged">
+        ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Online_SelectionChanged" PreviewMouseRightButtonDown="WallpaperList_RightClick">
         <ListBox.ContextMenu><ContextMenu><MenuItem Header="Apply as desktop wallpaper" Click="OnlineContextApply_Click"/><MenuItem Header="Download to My Garden" Click="OnlineContextDownload_Click"/></ContextMenu></ListBox.ContextMenu>
         <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
         <ListBox.ItemTemplate><DataTemplate>
@@ -159,7 +160,7 @@
         </DataTemplate></ListBox.ItemTemplate>
        </ListBox>
        <ListBox x:Name="GalleryList" PreviewMouseWheel="GalleryList_PreviewMouseWheel" Background="Transparent" BorderThickness="0" Foreground="White"
-        ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Gallery_SelectionChanged">
+        ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionChanged="Gallery_SelectionChanged" PreviewMouseRightButtonDown="WallpaperList_RightClick">
         <ListBox.ContextMenu><ContextMenu><MenuItem Header="Apply as desktop wallpaper" Click="GardenContextApply_Click"/></ContextMenu></ListBox.ContextMenu>
         <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
         <ListBox.ItemTemplate><DataTemplate>
