@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly FavoritesService _favorites = new();
     private readonly WikimediaWallpaperService _onlineService = new();
     private readonly OpenverseWallpaperService _openverse = new();
+    private readonly AiWallpaperService _aiService = new();
     private readonly List<OnlineWallpaper> _onlineResults = new();
     private string _currentQuery = "landscape";
     private int _onlinePage = 0;
@@ -51,6 +52,7 @@ public partial class MainWindow : Window
         FavoriteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         DeleteButton.Visibility = showLibrary ? Visibility.Visible : Visibility.Collapsed;
         CategoryBar.Visibility = _page == "Home" ? Visibility.Visible : Visibility.Collapsed;
+        StudioPanel.Visibility = _page == "Studio" ? Visibility.Visible : Visibility.Collapsed;
         MoreButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
         GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
         ClearSelection();
@@ -284,7 +286,42 @@ public partial class MainWindow : Window
     }
     private async void Discover_Click(object sender, RoutedEventArgs e) => await ShowDiscoverAsync();
     private void Studio_Click(object sender, RoutedEventArgs e) =>
-        SetPage("Seed Studio", "AI generation and reference-image editing are planned for a future milestone.", false, StudioButton);
+        SetPage("Seed Studio", "Create original wallpapers from a text description.", false, StudioButton);
+
+    private async void StudioGenerate_Click(object sender, RoutedEventArgs e)
+    {
+        var prompt = StudioPrompt.Text.Trim();
+        var key = StudioKey.Password;
+        if (string.IsNullOrWhiteSpace(prompt) || string.IsNullOrWhiteSpace(key))
+        {
+            StudioStatus.Text = "Enter a wallpaper description and your Pollinations API key.";
+            return;
+        }
+        StudioGenerate.IsEnabled = false;
+        StudioOpenGarden.IsEnabled = false;
+        StudioStatus.Text = "Generating wallpaper... This can take a minute.";
+        try
+        {
+            var model = (StudioModel.SelectedItem as ComboBoxItem)?.Tag as string ?? "flux";
+            var size = ((StudioResolution.SelectedItem as ComboBoxItem)?.Tag as string ?? "1536x1024").Split('x');
+            var path = await _aiService.GenerateAsync(prompt, model, int.Parse(size[0]), int.Parse(size[1]), key);
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(path, UriKind.Absolute);
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.EndInit();
+            StudioResult.Source = image;
+            StudioStatus.Text = "Wallpaper generated and saved to My Garden.";
+            StudioOpenGarden.IsEnabled = true;
+        }
+        catch (Exception ex)
+        {
+            StudioStatus.Text = "Generation failed: " + ex.Message;
+        }
+        finally { StudioGenerate.IsEnabled = true; }
+    }
+
+    private void StudioOpenGarden_Click(object sender, RoutedEventArgs e) => ShowGarden();
     private void Garden_Click(object sender, RoutedEventArgs e) => ShowGarden();
     private void Settings_Click(object sender, RoutedEventArgs e) =>
         SetPage("Settings", "More personalisation options are coming soon.", false, SettingsButton);
