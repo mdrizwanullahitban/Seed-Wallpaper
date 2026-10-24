@@ -4,7 +4,7 @@
  xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
  Title="Seed Wallpaper" WindowStyle="None" ResizeMode="CanResize" Width="1320" Height="820" MinWidth="1020" MinHeight="610"
  WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
- FontFamily="Segoe UI" PreviewKeyDown="Window_PreviewKeyDown">
+ FontFamily="Segoe UI" PreviewKeyDown="Window_PreviewKeyDown" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
  <Grid>
   <Grid.RowDefinitions><RowDefinition x:Name="TitleBarRow" Height="38"/><RowDefinition Height="*"/></Grid.RowDefinitions>
   <Border x:Name="WindowTitleBar" Grid.Row="0" Background="#101923" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
@@ -149,7 +149,7 @@
         <ListBox.ItemTemplate><DataTemplate>
          <StackPanel Width="174">
           <Border CornerRadius="9" ClipToBounds="True" Background="#091721" Height="116">
-           <Image Source="{Binding PreviewUrl}" Stretch="UniformToFill"/>
+           <Image Source="{Binding PreviewUrl}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="LowQuality" />
           </Border>
           <TextBlock Text="{Binding Title}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="3,8,3,3" Foreground="#DDEDF7"/>
           <TextBlock Text="{Binding License}" FontSize="10" Foreground="#9DC1CE" Margin="3,0,3,2"/>
@@ -162,7 +162,7 @@
         <ListBox.ItemTemplate><DataTemplate>
          <StackPanel Width="174">
           <Border CornerRadius="9" ClipToBounds="True" Background="#091721" Height="116">
-           <Image Source="{Binding}" Stretch="UniformToFill"/>
+           <Image Source="{Binding}" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="LowQuality" />
           </Border>
           <TextBlock Text="{Binding}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="3,8,3,3" Foreground="#DDEDF7"/>
          </StackPanel>
