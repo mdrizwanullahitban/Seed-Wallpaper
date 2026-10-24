@@ -160,6 +160,43 @@
       </Grid>
      </Border>
     </Grid>
+    <Border x:Name="StudioPanel" Grid.Column="0" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#0B202E" BorderBrush="#24445C" BorderThickness="1" CornerRadius="18" Padding="24">
+     <ScrollViewer VerticalScrollBarVisibility="Auto">
+      <StackPanel MaxWidth="860" HorizontalAlignment="Stretch">
+       <TextBlock Text="CREATE WITH AI" Foreground="#61D7B5" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,12"/>
+       <TextBlock Text="Describe your dream wallpaper" FontSize="25" FontWeight="SemiBold" Margin="0,0,0,9"/>
+       <TextBlock Text="Describe a scene, mood, lighting and style. AI generation requires your own Pollinations API key and may incur provider charges." TextWrapping="Wrap" Foreground="#A6C0CF" Margin="0,0,0,20"/>
+       <TextBox x:Name="StudioPrompt" Height="115" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontSize="15" Padding="14" Background="#173448" Foreground="White" BorderBrush="#36586C" Text="A cinematic mountain landscape at sunrise, misty valley, natural colors, ultra detailed, 4K wallpaper"/>
+       <WrapPanel Margin="0,18,0,12">
+        <StackPanel Margin="0,0,16,12">
+         <TextBlock Text="MODEL" Foreground="#91B3C4" FontSize="11" Margin="0,0,0,7"/>
+         <ComboBox x:Name="StudioModel" Width="180" SelectedIndex="0" Padding="8">
+          <ComboBoxItem Content="Flux" Tag="flux"/>
+          <ComboBoxItem Content="Z-Image" Tag="zimage"/>
+         </ComboBox>
+        </StackPanel>
+        <StackPanel Margin="0,0,16,12">
+         <TextBlock Text="WALLPAPER SIZE" Foreground="#91B3C4" FontSize="11" Margin="0,0,0,7"/>
+         <ComboBox x:Name="StudioResolution" Width="210" SelectedIndex="0" Padding="8">
+          <ComboBoxItem Content="Landscape 1536 × 1024" Tag="1536x1024"/>
+          <ComboBoxItem Content="Widescreen 1920 × 1080" Tag="1920x1080"/>
+          <ComboBoxItem Content="Portrait 1024 × 1536" Tag="1024x1536"/>
+          <ComboBoxItem Content="Square 1024 × 1024" Tag="1024x1024"/>
+         </ComboBox>
+        </StackPanel>
+       </WrapPanel>
+       <TextBlock Text="POLLINATIONS API KEY" Foreground="#91B3C4" FontSize="11" Margin="0,0,0,7"/>
+       <PasswordBox x:Name="StudioKey" Height="42" Padding="10" Background="#173448" Foreground="White" BorderBrush="#36586C" ToolTip="Key stays in memory only; not saved or committed to GitHub."/>
+       <TextBlock Text="Your key is used only for this generation request. It is not saved to disk." Foreground="#87A9BA" FontSize="11" Margin="0,7,0,16"/>
+       <Button x:Name="StudioGenerate" Content="✦  Generate Wallpaper" Click="StudioGenerate_Click" Background="{StaticResource AccentGradient}" BorderThickness="0" Foreground="#071824" FontWeight="SemiBold" Padding="18,15" HorizontalAlignment="Left"/>
+       <TextBlock x:Name="StudioStatus" Text="Ready to generate." Foreground="#A7C7D5" Margin="0,12,0,16" TextWrapping="Wrap"/>
+       <Border Height="260" CornerRadius="12" Background="#071721" ClipToBounds="True">
+        <Image x:Name="StudioResult" Stretch="Uniform"/>
+       </Border>
+       <Button x:Name="StudioOpenGarden" Content="Open generated image in My Garden" Click="StudioOpenGarden_Click" IsEnabled="False" HorizontalAlignment="Left" Margin="0,14,0,0"/>
+      </StackPanel>
+     </ScrollViewer>
+    </Border>
     <Border Grid.Column="1" Background="#102636" BorderBrush="#24445C" BorderThickness="1" CornerRadius="18" Padding="16">
      <StackPanel>
       <Border Height="220" Background="#091B28" CornerRadius="12" ClipToBounds="True">
