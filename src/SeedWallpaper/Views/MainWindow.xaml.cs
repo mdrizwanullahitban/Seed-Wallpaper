@@ -75,7 +75,9 @@ public partial class MainWindow : Window
         GoogleDiscoverPanel.Visibility = _page == "Discover" ? Visibility.Visible : Visibility.Collapsed;
         TopSearchBar.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         GalleryScroll.Visibility = _page is "Studio" or "Discover" ? Visibility.Collapsed : Visibility.Visible;
-        WallpaperDetailsPanel.Visibility = _page is "Studio" or "Discover" ? Visibility.Collapsed : Visibility.Visible;
+        WallpaperDetailsPanel.Visibility = _page == "Garden" ? Visibility.Visible : Visibility.Collapsed;
+        DetailsColumn.Width = _page == "Garden" ? new GridLength(300) : new GridLength(0);
+        GalleryScroll.Margin = _page == "Home" ? new Thickness(0) : new Thickness(0, 0, 20, 0);
         SearchBox.Visibility = _page == "Studio" ? Visibility.Collapsed : Visibility.Visible;
         MoreButton.Visibility = _page is "Discover" or "Home" ? Visibility.Visible : Visibility.Collapsed;
         GalleryHeading.Text = _page == "Discover" ? "Online Wallpapers" : _page == "Home" ? "Featured Wallpapers" : "Wallpapers";
