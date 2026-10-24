@@ -125,8 +125,10 @@ public partial class MainWindow : Window
 
     private void RegisterBrowserShortcuts(Microsoft.Web.WebView2.Wpf.WebView2 browser)
     {
-        if (browser.CoreWebView2 is null) return;
-        browser.CoreWebView2.AcceleratorKeyPressed += (_, e) =>
+        // WPF WebView2 exposes the controller event through CoreWebView2Controller,
+        // not CoreWebView2. Keep native window shortcuts working inside web content.
+        if (browser.CoreWebView2Controller is null) return;
+        browser.CoreWebView2Controller.AcceleratorKeyPressed += (_, e) =>
         {
             if (e.KeyEventKind is not (Microsoft.Web.WebView2.Core.CoreWebView2KeyEventKind.KeyDown
                 or Microsoft.Web.WebView2.Core.CoreWebView2KeyEventKind.SystemKeyDown))
@@ -136,7 +138,7 @@ public partial class MainWindow : Window
             if (e.VirtualKey == 0x0D)
             {
                 e.Handled = true;
-                Dispatcher.BeginInvoke(ToggleFullscreen);
+                Dispatcher.BeginInvoke(new Action(ToggleFullscreen));
             }
             else if (e.VirtualKey == 0x08)
             {
