@@ -177,19 +177,6 @@
     </ScrollViewer>
     <Border x:Name="GoogleDiscoverPanel" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#0C0E15" BorderBrush="#303748" BorderThickness="1" CornerRadius="14">
      <DockPanel>
-      <Border DockPanel.Dock="Top" Background="#171B26" Padding="12" CornerRadius="12,12,0,0">
-       <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-         <Button Content="Back" Click="GoogleBack_Click" Padding="12,7" Margin="0,0,7,0"/>
-         <Button Content="Reload" Click="GoogleReload_Click" Padding="12,7" Margin="0,0,7,0"/>
-         <Button Content="Open in browser" Click="GoogleOpen_Click" Padding="12,7" Margin="0"/>
-        </StackPanel>
-        <StackPanel>
-         <TextBlock Text="◈  Discover · Google Images" FontSize="17" FontWeight="SemiBold" Foreground="#E9F4FA"/>
-         <TextBlock Text="Find wallpapers across the web. Download images through Google and import into My Garden. Check image licences before reuse." FontSize="11" Foreground="#A8B8C8" TextWrapping="Wrap"/>
-        </StackPanel>
-       </DockPanel>
-      </Border>
       <Grid Background="#0C0E15">
        <TextBlock x:Name="GoogleLoadingText" Text="Loading Google Images…" Foreground="#A9BECD" HorizontalAlignment="Center" VerticalAlignment="Center"/>
        <wv2:WebView2 x:Name="GoogleDiscoverBrowser" NavigationCompleted="GoogleNavigationCompleted"/>
