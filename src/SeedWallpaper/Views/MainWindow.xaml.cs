@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using System.Windows.Interop;
 using System.Net.Http;
 using System.Text.Json;
 using System.Windows.Media;
@@ -37,11 +39,54 @@ public partial class MainWindow : Window
     private bool _showLibrary = true;
     private IReadOnlyList<string> _images = Array.Empty<string>();
 
+    // DWM customises the genuine Windows caption; no fake title bar is drawn.
+    private const int DwmwaUseImmersiveDarkMode = 20;
+    private const int DwmwaCaptionColor = 35;
+    private const int DwmwaTextColor = 36;
+    private const int WmDwmColorizationColorChanged = 0x0320;
+    private const int WmThemeChanged = 0x031A;
+
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    private static extern int DwmSetWindowAttribute(
+        IntPtr hwnd, int attribute, ref int value, int valueSize);
+
+    private static void ApplyNativeTitleBarTheme(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero) return;
+        const int size = sizeof(int);
+        int dark = 1;
+        // DWM COLORREF values are 0x00BBGGRR.
+        int caption = 0x00281C09; // #091C28, matching the sidebar
+        int text = 0x00FFF8F0;    // #F0F8FF, light title text
+        _ = DwmSetWindowAttribute(hwnd, DwmwaUseImmersiveDarkMode, ref dark, size);
+        // Caption and text colors are supported by Windows 11; older systems
+        // simply keep their system-managed caption colors.
+        _ = DwmSetWindowAttribute(hwnd, DwmwaCaptionColor, ref caption, size);
+        _ = DwmSetWindowAttribute(hwnd, DwmwaTextColor, ref text, size);
+    }
+
+    private void MainWindow_SourceInitialized(object? sender, EventArgs e)
+    {
+        var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+        source?.AddHook(NativeWindowMessageHook);
+        ApplyNativeTitleBarTheme(new WindowInteropHelper(this).Handle);
+    }
+
+    private IntPtr NativeWindowMessageHook(
+        IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WmThemeChanged || msg == WmDwmColorizationColorChanged)
+            ApplyNativeTitleBarTheme(hwnd);
+        return IntPtr.Zero;
+    }
+
     public MainWindow()
     {
         InitializeComponent();
         WindowStyle = WindowStyle.SingleBorderWindow;
         ResizeMode = ResizeMode.CanResize;
+        SourceInitialized += MainWindow_SourceInitialized;
+        StateChanged += (_, _) => ApplyNativeTitleBarTheme(new WindowInteropHelper(this).Handle);
         ShowHome();
         ClearSelection();
         Loaded += async (_, _) => await SearchOnlineAsync("featured pictures landscape");
