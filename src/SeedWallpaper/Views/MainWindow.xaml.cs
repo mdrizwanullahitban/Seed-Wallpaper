@@ -86,7 +86,16 @@ public partial class MainWindow : Window
         WindowStyle = WindowStyle.SingleBorderWindow;
         ResizeMode = ResizeMode.CanResize;
         SourceInitialized += MainWindow_SourceInitialized;
-        StateChanged += (_, _) => ApplyNativeTitleBarTheme(new WindowInteropHelper(this).Handle);
+        Loaded += (_, _) => KeepRestoredWindowOnScreen();
+        StateChanged += (_, _) =>
+        {
+            ApplyNativeTitleBarTheme(new WindowInteropHelper(this).Handle);
+            // Restoring from maximized can place the caption above the screen
+            // when Windows retained stale restore bounds or display scaling changed.
+            if (WindowState == WindowState.Normal)
+                Dispatcher.BeginInvoke(new Action(KeepRestoredWindowOnScreen),
+                    System.Windows.Threading.DispatcherPriority.Loaded);
+        };
         ShowHome();
         ClearSelection();
         Loaded += async (_, _) => await SearchOnlineAsync("featured pictures landscape");
@@ -227,6 +236,27 @@ public partial class MainWindow : Window
 
     // Keep the standard Windows caption and system buttons at all times.
     // Alt+Enter toggles maximized/restored instead of entering borderless mode.
+    private void KeepRestoredWindowOnScreen()
+    {
+        if (WindowState != WindowState.Normal) return;
+
+        // SystemParameters.WorkArea uses WPF device-independent coordinates.
+        // Keep the whole caption visible, even if the window is taller than
+        // the usable screen area after a maximize/restore transition.
+        var workArea = SystemParameters.WorkArea;
+        if (Top < workArea.Top || Top > workArea.Bottom - 48)
+            Top = workArea.Top + 12;
+        if (Left < workArea.Left || Left > workArea.Right - 80)
+            Left = workArea.Left + 12;
+
+        // Respect MinHeight/MinWidth; don't resize if the available area
+        // is smaller than the application's minimum dimensions.
+        if (Height > workArea.Height && workArea.Height >= MinHeight)
+            Height = workArea.Height;
+        if (Width > workArea.Width && workArea.Width >= MinWidth)
+            Width = workArea.Width;
+    }
+
     private void ToggleFullscreen()
     {
         WindowState = WindowState == WindowState.Maximized
