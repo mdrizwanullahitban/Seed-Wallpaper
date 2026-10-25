@@ -226,19 +226,6 @@ public partial class MainWindow : Window
         }
     }
 
-    private void WindowMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
-
-    private void WindowMaximize_Click(object sender, RoutedEventArgs e) =>
-        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-
-    private void WindowClose_Click(object sender, RoutedEventArgs e) => Close();
-
-    private void TitleBar_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
-        if (e.ClickCount == 2) WindowMaximize_Click(sender, e);
-        else if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed) DragMove();
-    }
-
     private void SetPage(string title, string description, bool showLibrary, Button active)
     {
         OfflinePanel.Visibility = Visibility.Collapsed;
