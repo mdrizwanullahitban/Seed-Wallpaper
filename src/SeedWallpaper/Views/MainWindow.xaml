@@ -6,8 +6,6 @@
  WindowStartupLocation="CenterScreen" Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
  FontFamily="Segoe UI" PreviewKeyDown="Window_PreviewKeyDown" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType">
  <Grid>
-  <Grid.RowDefinitions><RowDefinition x:Name="TitleBarRow" Height="0"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-  <Grid Grid.Row="1">
   <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
   <Border Background="#091C28" BorderBrush="#19354B" BorderThickness="0,0,1,0">
    <DockPanel Margin="18,28,14,24">
@@ -391,6 +389,5 @@
    </Border>
    <TextBlock x:Name="StatusText" Visibility="Collapsed" Grid.Row="2" Text="Seed Wallpaper  •  Local collection" Foreground="#87A9BA" Margin="0,15,0,0" FontSize="12"/>
   </Grid>
- </Grid>
  </Grid>
 </Window>
