@@ -184,8 +184,8 @@
         <Grid Margin="0,0,0,16">
          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
          <StackPanel>
-          <TextBlock Text="Toggle fullscreen" Foreground="#EFF6FF" FontWeight="SemiBold" FontSize="14"/>
-          <TextBlock Text="Enter or exit fullscreen mode" Foreground="#9EB7C8" FontSize="12" Margin="0,5,0,0"/>
+          <TextBlock Text="Maximise / restore window" Foreground="#EFF6FF" FontWeight="SemiBold" FontSize="14"/>
+          <TextBlock Text="Keep the native Windows title bar visible" Foreground="#9EB7C8" FontSize="12" Margin="0,5,0,0"/>
          </StackPanel>
          <Border Grid.Column="1" Background="#234459" CornerRadius="8" Padding="14,9">
           <TextBlock Text="Alt + Enter" Foreground="#C7F5E6" FontWeight="SemiBold"/>
